@@ -220,3 +220,8 @@ body.fallback-mode .slide-inner { max-height: none; }
   color: var(--muted);
   margin-top: 2rem;
 }
+
+#piano-container {
+  overflow-y: hidden;
+  width: 100vw;
+}
