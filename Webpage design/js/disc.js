@@ -1,15 +1,16 @@
 // constants
 const width = 1200;
-const height = 800;
+const height = 500;
 const disc_spacing = 160;
 let num_discs = 5;
 const centre_size_prop = 0.30;
 let year_text = null;
 const min_year = 1950; // to ensure there's enough data to visualize, data before 1950 more spotty
 const max_year = 2023; // more recent data is likely still being updated
+const disc_y = 250;
 
 // create a svg obj
-let svg= d3.select("body").append("svg").attr("height", height).attr("width", width);
+let svg= d3.select("#viz-vinyl").append("svg").attr("height", height).attr("width", width);
 let group=svg.append("g")
 let circlesGroup = group.append("g")
     .attr("class", "circles-group");
@@ -47,17 +48,18 @@ function renderDiscs()
     // render the year text on screen
     year_text = group.append("text")
         .attr("id", "year-text")
-        .attr("x", width / 8)       // horizontal center
-        .attr("y", 20)// vertical position
+        .attr("x", width / 2 - 20)       // horizontal center
+        .attr("y", 400)// vertical position
         .attr("text-anchor", "middle") // center the text horizontally
         .attr("alignment-baseline", "middle") // center vertically
         .style("font-family", "Futura, sans-serif")
         .style("font-size", "24px")
         .style("font-weight", "bold")
+        .style("fill", "white")
         .text("Year: " + initial_year);
 
     // load the csv, convert numeric data to numbers
-    d3.csv("data/energy_and_pop_data.csv", row => {
+    d3.csv("../data/energy_and_pop_data.csv", row => {
         row.Year = +row.Year;
         row["Average Popularity"] = +row["Average Popularity"];
         row["Average Energy"] = +row["Average Energy"];
@@ -89,7 +91,7 @@ function renderDiscs()
             .append("g")
             .attr("class", "disc")
             .attr("transform", (d, i) =>
-                `translate(${100 + i * disc_spacing}, 150)`
+                `translate(${100 + i * disc_spacing}, ${disc_y})`
             );
         discs.append("circle")
             .attr("class", "outer")
@@ -112,6 +114,8 @@ function renderDiscs()
             .attr("fill", "black") // contrast with red
             .style("font-size", d => Math.max(10, pop_scale(d["Average Popularity"] * centre_size_prop) / 2)) // optional dynamic font size
             .style("font-family", "Futura, sans-serif");
+
+        console.log('ok');
 
         // listen for clicks
         discs.on("click", (e, d) => {
@@ -197,7 +201,7 @@ function updateDiscs(year)
 
     discs.transition()
         .duration(600)
-        .attr("transform", d => `translate(${d.x}, 150)`);
+        .attr("transform", d => `translate(${d.x}, ${disc_y})`);
 
     discs.select(".outer")
         .transition()
@@ -238,6 +242,6 @@ function createYearSlider(years)
         console.log("Slider value:", this.value);
         let curr_year = document.getElementById("year-text");
         curr_year.textContent = "Year: " + this.value;
-        // updateDiscs(this.value);
+        updateDiscs(this.value);
     });
 }

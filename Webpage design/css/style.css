@@ -137,6 +137,12 @@ body.fallback-mode .slide-inner { max-height: none; }
   max-width: 48ch;
   margin-bottom: 3rem;
 }
+
+#slider_container
+{
+   transform: translateY(-100px);
+}
+
 .viz-card {
   background: var(--surface);
   border-radius: 16px;
@@ -160,6 +166,14 @@ body.fallback-mode .slide-inner { max-height: none; }
   border: 1px dashed rgba(148, 163, 184, 0.25);
   border-radius: 10px;
 }
+
+.vinyl
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .viz-slot.viz-tall { min-height: 380px; }
 .viz-slot.viz-table { min-height: 280px; }
 .rising .slide-inner { margin-left: 5%; max-width: 90%; }

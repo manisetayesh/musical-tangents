@@ -17,8 +17,6 @@
 </head>
 <body>
   <!-- Main deck: full-viewport slides; only one .active at a time -->
-  <script src="js/piano.js"></script>
-
   <div class="deck" id="deck">
     <!-- Slide 1: Hero / hook -->
     <section class="slide active" id="slide-0" data-slide-index="0" aria-label="Slide 1">
@@ -45,9 +43,14 @@
           <h3>“Golden formula” — Key, Tempo, Energy</h3>
           <div class="viz-slot viz-tall" id="viz-formula" aria-label="Chart slot"></div>
         </div>
-        <div class="viz-card">
-          <h3>Genre × Year heatmap</h3>
-          <div class="viz-slot viz-table" id="viz-heatmap" aria-label="Chart or heatmap slot"></div>
+        <div class="viz-card vinyl">
+          <h3>Genre × Year Vinyl</h3>
+          <div class="viz-slot viz-table" id="viz-vinyl" aria-label="Chart or heatmap slot"></div>
+          <p style="transform: translateY(-400px);">
+            Diameter of discs based on genre popularity <br>
+            Number of rings corresponds to energy level of genre
+          </p>
+          <div id="slider_container"></div>
         </div>
         <div class="viz-card">
           <h3>Top 100 weeks-on-board · Data table</h3>
@@ -100,5 +103,8 @@
   </div>
 
   <script src="js/deck.js"></script>
+  <script src="js/piano.js"></script>
+  <script src="js/disc.js"></script>
+
 </body>
 </html>
