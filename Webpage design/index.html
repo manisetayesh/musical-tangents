@@ -35,14 +35,14 @@
         <p class="section-label">Rising Insight</p>
         <h2 class="section-title">Which features line up with popularity?</h2>
         <p class="section-desc">Given song attributes, can we guess a hit from its numbers?</p>
-        <div class="viz-card">
+        <!-- <div class="viz-card">
           <h3>Energy vs Valence (colored by Popularity)</h3>
           <div class="viz-slot" id="viz-scatter" aria-label="Chart slot"></div>
         </div>
         <div class="viz-card">
           <h3>“Golden formula” — Key, Tempo, Energy</h3>
           <div class="viz-slot viz-tall" id="viz-formula" aria-label="Chart slot"></div>
-        </div>
+        </div> -->
         <div class="viz-card vinyl">
           <h3>Genre × Year Vinyl</h3>
           <div class="viz-slot viz-table" id="viz-vinyl" aria-label="Chart or heatmap slot"></div>
@@ -51,11 +51,9 @@
             Number of rings corresponds to energy level of genre
           </p>
           <div id="slider_container"></div>
+          <div class="viz-slot viz-table" id="viz-piano"></div>
         </div>
-        <div class="viz-card">
-          <h3>Top 100 weeks-on-board · Data table</h3>
-          <div class="viz-slot viz-table" id="viz-table" aria-label="Table slot"></div>
-        </div>
+        
       </div>
     </section>
 
@@ -103,8 +101,8 @@
   </div>
 
   <script src="js/deck.js"></script>
-  <script src="js/piano.js"></script>
+  
   <script src="js/disc.js"></script>
-
+  <script src="js/piano.js"></script>
 </body>
 </html>
