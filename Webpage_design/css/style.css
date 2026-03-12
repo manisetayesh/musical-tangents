@@ -1,0 +1,552 @@
+:root {
+  --primary: #1E40AF;
+  --secondary: #0EA5E9;
+  --accent: #F59E0B;
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --text: #F8FAFC;
+  --muted: #94A3B8;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --slide-duration: 0.65s;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  font-family: 'Fira Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(30, 64, 175, 0.2), transparent 55%),
+    radial-gradient(ellipse 70% 60% at 75% 25%, rgba(245, 158, 11, 0.08), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(14, 165, 233, 0.1), transparent 55%);
+}
+
+.deck {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+body.slide-mode .deck { overflow: hidden; height: 100vh; }
+body.fallback-mode .deck { overflow-y: auto; min-height: 100vh; }
+
+.slide {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 1.5rem 5rem;
+  transition: opacity var(--slide-duration) var(--ease-out-expo), transform var(--slide-duration) var(--ease-out-expo);
+}
+body.slide-mode .slide {
+  position: fixed;
+  inset: 0;
+  padding: 4rem 1.5rem 5rem;
+  opacity: 0;
+  transform: translateY(22%) scale(0.97);
+  pointer-events: none;
+}
+body.slide-mode .slide.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  z-index: 2;
+}
+body.slide-mode .slide.slide-out {
+  opacity: 0;
+  transform: translateY(-22%) scale(0.97);
+  pointer-events: none;
+}
+body.slide-mode .slide.slide-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  z-index: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.slide-mode .slide,
+  body.slide-mode .slide.active,
+  body.slide-mode .slide.slide-out,
+  body.slide-mode .slide.slide-in { transition-duration: 0.15s; }
+}
+
+.slide-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-y: auto;
+  max-height: calc(100vh - 6rem);
+}
+body.fallback-mode .slide { padding: 6rem 1.5rem 8rem; }
+body.fallback-mode .slide-inner { max-height: none; }
+
+.hero-line {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.hero-line strong { color: var(--accent); }
+.hero-sub {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--muted);
+  margin-top: 1.5rem;
+  max-width: 36ch;
+}
+.hook-visual { margin-top: 4rem; max-width: 520px; }
+.placeholder-viz {
+  min-height: 280px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.section-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--secondary);
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+.section-desc {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 48ch;
+  margin-bottom: 3rem;
+}
+
+#slider_container
+{
+   transform: translateY(-100px);
+}
+
+.viz-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(248, 250, 252, 0.06);
+  transition: border-color 0.25s var(--ease-out-expo), box-shadow 0.25s var(--ease-out-expo);
+}
+.viz-card:hover { border-color: rgba(14, 165, 233, 0.3); box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.15); }
+.viz-card h3 {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+.viz-slot {
+  width: 100%;
+  min-height: 360px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+}
+
+.vinyl
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.viz-slot.viz-tall { min-height: 380px; }
+.viz-slot.viz-table { min-height: 280px; }
+.rising .slide-inner { margin-left: 5%; max-width: 90%; }
+@media (max-width: 768px) { .rising .slide-inner { margin-left: 0; max-width: 100%; } }
+
+.aha-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+@media (max-width: 768px) { .aha-grid { grid-template-columns: 1fr; } }
+.formula-block {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 2.5rem;
+  border: 1px solid rgba(248, 250, 252, 0.08);
+}
+.formula-block .copy { color: var(--muted); font-size: 1rem; line-height: 1.6; }
+.formula-block code {
+  display: block;
+  font-family: 'Fira Code', monospace;
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  color: var(--accent);
+  margin: 1rem 0;
+  letter-spacing: -0.02em;
+}
+.paths {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+@media (max-width: 768px) { .paths { grid-template-columns: 1fr; } }
+.path-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(248, 250, 252, 0.06);
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease-out-expo), box-shadow 0.3s var(--ease-out-expo), transform 0.3s var(--ease-out-expo);
+}
+.path-card:hover {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 1px var(--secondary);
+  transform: translateY(-4px);
+}
+.path-card h3 { font-family: 'Fira Code', monospace; font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--text); }
+.path-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+.path-card .icon { margin-bottom: 1rem; }
+
+.credits {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid rgba(248, 250, 252, 0.08);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 2rem;
+}
+
+#piano-container {
+  overflow-y: hidden;
+  width: 100vw;
+}
+
+/* Integrated viz modules (Slide 2 slots) */
+#viz-scatter,
+#viz-formula {
+  padding: 0.75rem;
+}
+
+#viz-scatter .ga-module {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#viz-scatter .ga-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+  border-radius: 10px;
+}
+
+#viz-scatter .ga-btn {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--text);
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(248, 250, 252, 0.2);
+  border-radius: 7px;
+  padding: 0.36rem 0.65rem;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-out-expo), background 0.2s var(--ease-out-expo);
+}
+
+#viz-scatter .ga-btn:hover {
+  border-color: rgba(14, 165, 233, 0.6);
+  background: rgba(14, 165, 233, 0.2);
+}
+
+#viz-scatter .ga-btn-play {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+#viz-scatter .ga-year-display {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-left: 0.2rem;
+  min-width: 3ch;
+}
+
+#viz-scatter #year-slider {
+  width: 120px;
+}
+
+#viz-scatter .ga-genre-selector {
+  display: none;
+  padding: 0.6rem 0.7rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.52);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+}
+
+#viz-scatter .ga-genre-selector.open {
+  display: block;
+}
+
+#viz-scatter .ga-genre-selector p {
+  margin: 0 0 0.45rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+#viz-scatter .genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  margin-bottom: 0.5rem;
+}
+
+#viz-scatter .genre-chip {
+  border: 1px solid rgba(248, 250, 252, 0.22);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+#viz-scatter .genre-chip.selected {
+  border-color: rgba(14, 165, 233, 0.55);
+  background: rgba(14, 165, 233, 0.25);
+}
+
+#viz-scatter .ga-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+#viz-scatter .legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.66rem;
+}
+
+#viz-scatter .legend-type {
+  color: var(--muted);
+}
+
+#viz-scatter #chart-container {
+  overflow-x: auto;
+}
+
+#viz-scatter #chart {
+  background: var(--surface);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+  width: 100%;
+  min-width: 850px;
+}
+
+#viz-scatter .staff-line {
+  stroke: rgba(0, 0, 0, 0.72);
+  stroke-width: 1.05;
+}
+
+#viz-scatter .barline {
+  stroke: rgba(0, 0, 0, 0.82);
+}
+
+#viz-scatter .year-tick-label {
+  fill: rgba(0, 0, 0, 0.78);
+  font-size: 10px;
+}
+
+#viz-scatter .playhead {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+  opacity: 0.5;
+}
+
+#viz-scatter .trail {
+  fill: none;
+  stroke-width: 2.1;
+  stroke-opacity: 0.36;
+  stroke-dasharray: 6 4;
+}
+
+#viz-scatter .genre-right-label {
+  font-size: 11px;
+}
+
+#viz-formula .tempo-module {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+#viz-formula #tempo-controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+#viz-formula #tempo-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.58rem 0.65rem;
+  background: rgba(15, 23, 42, 0.52);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+  border-radius: 10px;
+  font-size: 0.73rem;
+  color: var(--muted);
+  min-width: 0;
+}
+
+#viz-formula #tempo-controls .tempo-select-label {
+  color: var(--muted);
+  font-family: 'Fira Code', monospace;
+}
+
+#viz-formula #tempo-controls .tempo-song-picker {
+  width: 100%;
+  padding: 0.45rem 0.56rem;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 7px;
+  background: rgba(2, 6, 23, 0.75);
+  color: var(--text);
+  font-size: 0.72rem;
+}
+
+#viz-formula #tempo-controls .tempo-song-picker:focus {
+  outline: none;
+  border-color: rgba(14, 165, 233, 0.65);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.14);
+}
+
+#viz-formula #tempo-controls .tempo-combobox {
+  position: relative;
+  width: 100%;
+}
+
+#viz-formula #tempo-controls .tempo-song-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  border: 1px solid rgba(248, 250, 252, 0.16);
+  border-radius: 8px;
+  background: #142138;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  z-index: 40;
+}
+
+#viz-formula #tempo-controls .tempo-song-list.open {
+  display: block;
+}
+
+#viz-formula #tempo-controls .tempo-song-list li {
+  padding: 0.36rem 0.54rem;
+  font-size: 0.72rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+#viz-formula #tempo-controls .tempo-song-list li:hover,
+#viz-formula #tempo-controls .tempo-song-list li.active {
+  background: rgba(14, 165, 233, 0.2);
+}
+
+#viz-formula #tempo-song-info {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+#viz-formula #tempo-song-info .tempo-song-card {
+  padding: 0.58rem 0.65rem;
+  background: rgba(15, 23, 42, 0.52);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+  border-radius: 10px;
+  color: var(--text);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-family: 'Fira Code', monospace;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card p {
+  margin: 0.1rem 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card p strong {
+  color: var(--text);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card p.empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+#viz-formula #tempo-song-info .tempo-song-card .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#viz-formula #tempo-chart-host {
+  overflow-x: auto;
+}
+
+#viz-formula #tempo-chart-host svg {
+  border: 1px solid rgba(248, 250, 252, 0.12);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.64);
+  width: 100%;
+  min-width: 760px;
+}
+
+#viz-formula .ecg-line-core {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.22));
+}
+
+#viz-formula .ecg-line-glow {
+  filter: blur(2.2px);
+}
