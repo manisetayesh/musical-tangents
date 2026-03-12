@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 #piano-container {
     width: 100%;
-=======
-﻿#piano-container {
->>>>>>> 40e667c (Add tempo graph updates and base genreAnimation vis)
     overflow-y: hidden;
+
 }
 
 #tempo-controls {
@@ -347,9 +344,4 @@
 #genreAnimation-feature .genre-right-label {
     font-size: 12.5px;
     font-weight: 700;
-<<<<<<< HEAD
 }
-=======
-}
-
->>>>>>> 40e667c (Add tempo graph updates and base genreAnimation vis)
