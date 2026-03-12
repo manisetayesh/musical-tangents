@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Makes a Hit? — Musical Tangents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/brutalist.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
+</head>
+<body>
+  <div class="deck" id="deck">
+    <section class="slide active" id="slide-0" data-slide-index="0" aria-label="Slide 1">
+      <div class="slide-inner">
+        <div class="hero-inner-wrap">
+          <div class="hero-text">
+            <p class="hero-label">Trigger / Hook</p>
+            <h1 class="hero-title">WHY THIS?</h1>
+            <p class="hero-sub">Have you ever been browsing music and wondered &ldquo;why exactly is this song trending?&rdquo;</p>
+            <p class="hero-sub">Have you ever been listening to the radio or looking through today&rsquo;s hits and asking &ldquo;what do all of these songs have in common?&rdquo;</p>
+          </div>
+          <div class="hero-visual">
+          <div class="hero-phone-mockup" aria-hidden="true">
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-btn phone-btn-vol-up"></div>
+              <div class="phone-btn phone-btn-vol-down"></div>
+              <div class="phone-btn phone-btn-power"></div>
+              <div class="phone-screen">
+              <div class="billboard-header">
+                <span class="iconify" data-icon="mdi:chart-line" data-width="24" data-height="24"></span>
+                <span>HOT 100</span>
+              </div>
+              <p class="billboard-date" id="billboard-date"></p>
+              <ul class="billboard-list" id="billboard-list">
+                <li class="billboard-loading"><span class="rank">—</span><span class="track">Loading chart...</span></li>
+              </ul>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-1" data-slide-index="1" aria-label="Slide 2">
+      <div class="slide-inner">
+        <p class="section-label">Rising Insight</p>
+        <h2 class="section-title">Which features line up with popularity?</h2>
+        <p class="section-desc">Given song attributes, can we guess a hit from its numbers?</p>
+        <div class="viz-card brutalist-card">
+          <h3>Most Popular Genres Over the Years</h3>
+          <div class="viz-slot" id="viz-scatter" aria-label="Chart slot">
+            <div class="ga-module">
+              <div class="ga-controls">
+                <button class="ga-btn ga-btn-play" id="btn-play">&#9654; Play</button>
+                <button class="ga-btn" id="btn-reset">&#8634; Reset</button>
+                <button class="ga-btn ga-btn-genres" id="btn-genres">&#9836; Genres</button>
+                <input type="range" id="year-slider" min="0" max="1" step="1" value="0">
+                <span class="ga-year-display" id="year-display">1950</span>
+              </div>
+              <div class="ga-genre-selector" id="genre-selector">
+                <p>Select up to 5 genres (<span id="genre-count">0</span> selected)</p>
+                <div class="genre-chips" id="genre-chips"></div>
+                <button class="ga-btn" id="btn-apply">Apply &amp; Reset</button>
+              </div>
+              <div class="ga-legend" id="legend"></div>
+              <div id="chart-container">
+                <svg id="chart"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="viz-card brutalist-card">
+          <h3>Song Tempo Comparisons</h3>
+          <div class="viz-slot viz-tall" id="viz-formula" aria-label="Chart slot">
+            <div class="tempo-module">
+              <div id="tempo-controls">
+                <label>Song 1: <select id="song1"></select></label>
+                <label>Song 2: <select id="song2"></select></label>
+              </div>
+              <div id="tempo-chart-host"></div>
+            </div>
+          </div>
+        </div>
+        <div class="viz-card brutalist-card vinyl">
+          <h3>Genre x Year Vinyl</h3>
+          <div class="viz-slot viz-table" id="vinyl-wall" aria-label="Chart or heatmap slot" style="width: 100%; min-width: 600px; height: 500px;"></div>
+          <p class="vinyl-desc">Diameter of discs based on genre popularity. Speed of disc rotation corresponds to energy level of genre.</p>
+          <div id="slider_container"></div>
+          <div id="tooltip"></div>
+          <div class="viz-slot viz-table" id="viz-piano"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-2" data-slide-index="2" aria-label="Slide 3">
+      <div class="slide-inner">
+        <p class="section-label">The AHA</p>
+        <h2 class="section-title">A sweet spot.</h2>
+        <div class="aha-grid">
+          <div class="formula-block brutalist-card">
+            <p class="copy">Hits often sit in a sweet spot.</p>
+            <code>pop(x) ≈ key + tempo + energy + valence</code>
+            <p class="copy">Not a law — but the pattern is there.</p>
+          </div>
+          <div class="viz-card brutalist-card">
+            <h3>Decade comparison (small multiples)</h3>
+            <div class="viz-slot" id="viz-decade" aria-label="Chart slot"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-3" data-slide-index="3" aria-label="Slide 4">
+      <div class="slide-inner">
+        <p class="section-label">Conclusion / Next Steps</p>
+        <h2 class="section-title">Two ways to use what you see.</h2>
+        <p class="section-desc paths-empower">Empower your audience to act.</p>
+        <div class="paths-stage" aria-label="Two diverging paths">
+          <div class="path-panel path-panel-artist" tabindex="0" role="group" aria-label="Path A: The Artist">
+            <div class="path-panel-inner">
+              <div class="path-panel-accent"></div>
+              <div class="path-panel-content">
+                <span class="path-icon" aria-hidden="true"><span class="iconify" data-icon="mdi:music-note" data-width="32" data-height="32"></span></span>
+                <h3>Path A: The Artist</h3>
+                <p>This is the formula to follow to maximize success. Aim for the sweet spot. Maximize reach.</p>
+              </div>
+            </div>
+          </div>
+          <div class="path-panel path-panel-explorer" tabindex="0" role="group" aria-label="Path B: The Explorer">
+            <div class="path-panel-inner">
+              <div class="path-panel-accent"></div>
+              <div class="path-panel-content">
+                <span class="path-icon" aria-hidden="true"><span class="iconify" data-icon="mdi:compass-outline" data-width="32" data-height="32"></span></span>
+                <h3>Path B: The Explorer</h3>
+                <p>You know the formula. Now go off the beaten path. Discover avenues of music that are not conventionally popular.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="credits">
+          Webpage design — Musical Tangents. Chart and table slots reserved for data visualization.
+        </footer>
+      </div>
+    </section>
+  </div>
+
+  <nav class="deck-nav" aria-label="Slide navigation">
+    <button class="nav-btn" id="nav-prev" aria-label="Previous slide">
+      <span class="iconify" data-icon="mdi:chevron-left" data-width="24" data-height="24"></span>
+    </button>
+    <div class="nav-progress" id="nav-progress"></div>
+    <button class="nav-btn" id="nav-next" aria-label="Next slide">
+      <span class="iconify" data-icon="mdi:chevron-right" data-width="24" data-height="24"></span>
+    </button>
+  </nav>
+
+  <script src="js/heroBillboard.js"></script>
+  <script src="js/deck.js"></script>
+  <script src="js/scrollAnimations.js"></script>
+  <script src="js/disc_updated.js"></script>
+  <script src="js/piano.js"></script>
+  <script src="js/genreAnimation.js"></script>
+  <script src="js/tempo.js"></script>
+</body>
+</html>
