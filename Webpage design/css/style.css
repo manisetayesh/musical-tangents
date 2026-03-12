@@ -239,3 +239,314 @@ body.fallback-mode .slide-inner { max-height: none; }
   overflow-y: hidden;
   width: 100vw;
 }
+
+/* Integrated viz modules (Slide 2 slots) */
+#viz-scatter,
+#viz-formula {
+  padding: 0.75rem;
+}
+
+#viz-scatter .ga-module {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#viz-scatter .ga-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+  border-radius: 10px;
+}
+
+#viz-scatter .ga-btn {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--text);
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(248, 250, 252, 0.2);
+  border-radius: 7px;
+  padding: 0.36rem 0.65rem;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-out-expo), background 0.2s var(--ease-out-expo);
+}
+
+#viz-scatter .ga-btn:hover {
+  border-color: rgba(14, 165, 233, 0.6);
+  background: rgba(14, 165, 233, 0.2);
+}
+
+#viz-scatter .ga-btn-play {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+#viz-scatter .ga-year-display {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-left: 0.2rem;
+  min-width: 3ch;
+}
+
+#viz-scatter #year-slider {
+  width: 120px;
+}
+
+#viz-scatter .ga-genre-selector {
+  display: none;
+  padding: 0.6rem 0.7rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.52);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+}
+
+#viz-scatter .ga-genre-selector.open {
+  display: block;
+}
+
+#viz-scatter .ga-genre-selector p {
+  margin: 0 0 0.45rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+#viz-scatter .genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  margin-bottom: 0.5rem;
+}
+
+#viz-scatter .genre-chip {
+  border: 1px solid rgba(248, 250, 252, 0.22);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+#viz-scatter .genre-chip.selected {
+  border-color: rgba(14, 165, 233, 0.55);
+  background: rgba(14, 165, 233, 0.25);
+}
+
+#viz-scatter .ga-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+#viz-scatter .legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.66rem;
+}
+
+#viz-scatter .legend-type {
+  color: var(--muted);
+}
+
+#viz-scatter #chart-container {
+  overflow-x: auto;
+}
+
+#viz-scatter #chart {
+  background: var(--surface);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+  width: 100%;
+  min-width: 850px;
+}
+
+#viz-scatter .staff-line {
+  stroke: rgba(0, 0, 0, 0.72);
+  stroke-width: 1.05;
+}
+
+#viz-scatter .barline {
+  stroke: rgba(0, 0, 0, 0.82);
+}
+
+#viz-scatter .year-tick-label {
+  fill: rgba(0, 0, 0, 0.78);
+  font-size: 10px;
+}
+
+#viz-scatter .playhead {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+  opacity: 0.5;
+}
+
+#viz-scatter .trail {
+  fill: none;
+  stroke-width: 2.1;
+  stroke-opacity: 0.36;
+  stroke-dasharray: 6 4;
+}
+
+#viz-scatter .genre-right-label {
+  font-size: 11px;
+}
+
+#viz-formula .tempo-module {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+#viz-formula #tempo-controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+#viz-formula #tempo-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.58rem 0.65rem;
+  background: rgba(15, 23, 42, 0.52);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+  border-radius: 10px;
+  font-size: 0.73rem;
+  color: var(--muted);
+  min-width: 0;
+}
+
+#viz-formula #tempo-controls .tempo-select-label {
+  color: var(--muted);
+  font-family: 'Fira Code', monospace;
+}
+
+#viz-formula #tempo-controls .tempo-song-picker {
+  width: 100%;
+  padding: 0.45rem 0.56rem;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 7px;
+  background: rgba(2, 6, 23, 0.75);
+  color: var(--text);
+  font-size: 0.72rem;
+}
+
+#viz-formula #tempo-controls .tempo-song-picker:focus {
+  outline: none;
+  border-color: rgba(14, 165, 233, 0.65);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.14);
+}
+
+#viz-formula #tempo-controls .tempo-combobox {
+  position: relative;
+  width: 100%;
+}
+
+#viz-formula #tempo-controls .tempo-song-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  border: 1px solid rgba(248, 250, 252, 0.16);
+  border-radius: 8px;
+  background: #142138;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  z-index: 40;
+}
+
+#viz-formula #tempo-controls .tempo-song-list.open {
+  display: block;
+}
+
+#viz-formula #tempo-controls .tempo-song-list li {
+  padding: 0.36rem 0.54rem;
+  font-size: 0.72rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+#viz-formula #tempo-controls .tempo-song-list li:hover,
+#viz-formula #tempo-controls .tempo-song-list li.active {
+  background: rgba(14, 165, 233, 0.2);
+}
+
+#viz-formula #tempo-song-info {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+#viz-formula #tempo-song-info .tempo-song-card {
+  padding: 0.58rem 0.65rem;
+  background: rgba(15, 23, 42, 0.52);
+  border: 1px solid rgba(248, 250, 252, 0.11);
+  border-radius: 10px;
+  color: var(--text);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-family: 'Fira Code', monospace;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card p {
+  margin: 0.1rem 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card p strong {
+  color: var(--text);
+}
+
+#viz-formula #tempo-song-info .tempo-song-card p.empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+#viz-formula #tempo-song-info .tempo-song-card .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#viz-formula #tempo-chart-host {
+  overflow-x: auto;
+}
+
+#viz-formula #tempo-chart-host svg {
+  border: 1px solid rgba(248, 250, 252, 0.12);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.64);
+  width: 100%;
+  min-width: 760px;
+}
+
+#viz-formula .ecg-line-core {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.22));
+}
+
+#viz-formula .ecg-line-glow {
+  filter: blur(2.2px);
+}

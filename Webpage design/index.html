@@ -36,12 +36,39 @@
         <h2 class="section-title">Which features line up with popularity?</h2>
         <p class="section-desc">Given song attributes, can we guess a hit from its numbers?</p>
         <div class="viz-card">
-          <h3>Energy vs Valence (colored by Popularity)</h3>
-          <div class="viz-slot" id="viz-scatter" aria-label="Chart slot"></div>
+          <h3>Most Popular Genres Over the Years</h3>
+          <div class="viz-slot" id="viz-scatter" aria-label="Chart slot">
+            <div class="ga-module">
+              <div class="ga-controls">
+                <button class="ga-btn ga-btn-play" id="btn-play">&#9654; Play</button>
+                <button class="ga-btn" id="btn-reset">&#8634; Reset</button>
+                <button class="ga-btn ga-btn-genres" id="btn-genres">&#9836; Genres</button>
+                <input type="range" id="year-slider" min="0" max="1" step="1" value="0">
+                <span class="ga-year-display" id="year-display">1950</span>
+              </div>
+              <div class="ga-genre-selector" id="genre-selector">
+                <p>Select up to 5 genres (<span id="genre-count">0</span> selected)</p>
+                <div class="genre-chips" id="genre-chips"></div>
+                <button class="ga-btn" id="btn-apply">Apply &amp; Reset</button>
+              </div>
+              <div class="ga-legend" id="legend"></div>
+              <div id="chart-container">
+                <svg id="chart"></svg>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="viz-card">
-          <h3>“Golden formula” — Key, Tempo, Energy</h3>
-          <div class="viz-slot viz-tall" id="viz-formula" aria-label="Chart slot"></div>
+          <h3>Song Tempo Comparisons</h3>
+          <div class="viz-slot viz-tall" id="viz-formula" aria-label="Chart slot">
+            <div class="tempo-module">
+              <div id="tempo-controls">
+                <label>Song 1: <select id="song1"></select></label>
+                <label>Song 2: <select id="song2"></select></label>
+              </div>
+              <div id="tempo-chart-host"></div>
+            </div>
+          </div>
         </div>
         <div class="viz-card vinyl">
           <h3>Genre × Year Vinyl</h3>
@@ -105,6 +132,8 @@
   <script src="js/deck.js"></script>
   <script src="js/piano.js"></script>
   <script src="js/disc.js"></script>
+  <script src="js/genreAnimation.js"></script>
+  <script src="js/tempo.js"></script>
 
 </body>
 </html>
