@@ -1,4 +1,3 @@
-
 const tickInterval = 10;
 const keyWidth = 40;
 const keyHeight = 200;
@@ -6,67 +5,83 @@ const axisHeight = 30;
 const pianoPattern = [0, 1, 1, 0, 1, 1, 1];
 const yearPositions = new Map();
 
+// Placeholder variables for elements defined inside the D3 chain
+let pianoMainGroup, pianoKeys, yearsList;
+
 d3.csv("data/energy_and_pop_data.csv", row => {
     row.Year = +row.Year;
     row["Average Popularity"] = +row["Average Popularity"];
     return row;
 }).then(data => {
 
-    // some genre and year data properties
+    // 2. Data Processing
     const genres = Object.values(data.reduce((acc, current) => {
         if (!acc[current.Year] || current["Average Popularity"] > acc[current.Year]["Average Popularity"]) {
             acc[current.Year] = current;
         } return acc;
     }, {})).sort((a, b) => a.Year - b.Year);
-    const uniqueGenres = genres.map(d => d.Genre).filter((value, index, self) => self.indexOf(value) === index);
+
+    const uniqueGenres = [...new Set(genres.map(d => d.Genre))];
     const colorScale = d3.scaleOrdinal()
         .domain(uniqueGenres)
-        .range(d3.schemeTableau10); // TBD: Change color palette since not enough colors for genres
-    const years = d3.range(d3.min(data, d => d.Year), d3.max(data, d => d.Year)+1);
+        .range(d3.schemeTableau10);
+
+    const minYear = d3.min(data, d => d.Year);
+    const maxYear = d3.max(data, d => d.Year);
+    yearsList = d3.range(minYear, maxYear + 1);
     
-    // d3 container set-up
+    // 3. Container Setup
     const legend = d3.select("body").append("svg")
         .attr("width", uniqueGenres.length * 100)
         .attr("height", 30)
         .append("g")
         .attr("transform", "translate(10, 10)");
+
     const pianoContainer = d3.select("body")
         .append("div")
-        .attr("id", "piano-container");
+        .attr("id", "piano-container")
+        .style("width", "100%") // Ensure container has a width for centering logic
+        .style("overflow", "hidden");
+
     const pianoSvg = pianoContainer.append("svg")
-        .attr("width", years.length * keyWidth)
+        .attr("width", yearsList.length * keyWidth)
         .attr("height", keyHeight + axisHeight);
-    const axisGroup = pianoSvg.append("g")
-    const pianoKeys = pianoSvg.append("g")
+
+    // Create the moving group first so everything inside it moves together
+    pianoMainGroup = pianoSvg.append("g").attr("id", "piano-moving-group");
+    
+    const axisGroup = pianoMainGroup.append("g");
+    pianoKeys = pianoMainGroup.append("g")
+        .attr("id","piano-keys")
         .attr("transform", `translate(0, ${axisHeight})`);
     
-    // Piano keys
-    years.forEach((year, i) => {
-        // colored keys
-        yearGenre = genres.find(d => d.Year === year)
-        if (yearGenre) {
-            color = colorScale(yearGenre.Genre);
-        } else { color = "white"; }   
+    // 4. Drawing Piano Keys
+    yearsList.forEach((year, i) => {
+        const yearGenre = genres.find(d => d.Year === year);
+        const color = yearGenre ? colorScale(yearGenre.Genre) : "white";
+           
         pianoKeys.append("rect")
             .attr("x", i * keyWidth)
             .attr("width", keyWidth)
             .attr("height", keyHeight)
             .attr("fill", color)
-            .attr("stroke", "black");
+            .attr("stroke", "black")
+            .attr("class", `key-${year}`);
+
         yearPositions.set(year, i * keyWidth + (keyWidth / 2));
-        // Black keys (decorative)
+
         if (pianoPattern[i % pianoPattern.length] === 1) {
             pianoKeys.append("rect")
                 .attr("x", i * keyWidth - ((keyWidth * 0.7) / 2))
                 .attr("width", keyWidth * 0.7)
                 .attr("height", keyHeight * 0.7)
                 .attr("fill", "black")
-                .attr("stroke", "black");
+                .attr("pointer-events", "none"); // Don't block clicks to colored keys
         } 
     });
 
-    // Axis
-    years.forEach((year) => {
+    // 5. Drawing Axis
+    yearsList.forEach((year) => {
         if (year % tickInterval === 0 && yearPositions.has(year)) {
             axisGroup.append("text")
                 .attr("x",  yearPositions.get(year))
@@ -78,10 +93,9 @@ d3.csv("data/energy_and_pop_data.csv", row => {
                 .attr("x2", yearPositions.get(year))
                 .attr("y1", 25)
                 .attr("y2", axisHeight)
-                .attr("stroke", "black")
+                .attr("stroke", "black");
         }
     });
-    
     // legend
     const legendItem = legend.selectAll(".legend-item")
         .data(uniqueGenres)
@@ -97,4 +111,34 @@ d3.csv("data/energy_and_pop_data.csv", row => {
         .attr("x", 20)
         .attr("y", 12.5)
         .text(d => d);
+    // 6. Slider Logic
+    let slider = d3.select("#slider_container input");
+    slider.on("input.piano", function() {
+        updatePianoPosition(+this.value);
+    });
+
+    // Initial position call
+    updatePianoPosition(+slider.property("value"));
 });
+
+// 7. Update Function (Defined in scope where it can access globals)
+function updatePianoPosition(year) {
+    if (!yearPositions.has(year)) return;
+
+    const targetX = yearPositions.get(year);
+    // Use the container's visual width to calculate the center
+    const containerWidth = document.getElementById("piano-container").clientWidth || 800;
+    const translateX = (containerWidth / 2) - targetX;
+
+    pianoMainGroup.transition()
+        .duration(300)
+        .ease(d3.easeCubicOut)
+        .attr("transform", `translate(${translateX}, 0)`);
+
+    // Visual feedback: Highlight the selected year's key
+    pianoKeys.selectAll("rect")
+        .attr("stroke-width", 1);
+    
+    pianoKeys.select(`.key-${year}`)
+        .attr("stroke-width", 3);
+}
