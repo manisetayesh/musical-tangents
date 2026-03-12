@@ -4,7 +4,6 @@ const height = 500;
 const disc_spacing = 160;
 let num_discs = 5;
 const centre_size_prop = 0.30;
-let year_text = null;
 const min_year = 1950; // to ensure there's enough data to visualize, data before 1950 more spotty
 const max_year = 2023; // more recent data is likely still being updated
 
@@ -63,15 +62,6 @@ class VinylWall {
 
         // create a scale for genre text size
         vis.genre_text_scale = d3.scaleLinear().domain([0, 30]).range([8, 15])
-
-        // initialize year text elements
-        vis.year_text = vis.group.append("text")
-            .attr("id", "year-text")
-            .attr("class", "vinyl-year-label")
-            .attr("x", vis.width / 2)
-            .attr("y", 400)
-            .attr("text-anchor", "middle")
-            .text("Year: 1990");
 
         // initial year
         vis.current_year = 1990;
@@ -185,8 +175,8 @@ class VinylWall {
 
             const energy = d.Energy;
 
-            // eventually this is based on energy (the formula is round(energy * 10))
-            const num_rings = Math.round(10 * energy);
+            // num rings is always 3 now
+            const num_rings = 3;
             console.log('energy: ' + energy);
             console.log('num_rings: ' + num_rings);
             const ring_arr = d3.range(1, num_rings + 1);
@@ -257,7 +247,6 @@ function loadYearSlider(parent_element, vinylWallInstance)
 
     function updateYearDisplay(val) {
         yearDisplay.text(val);
-        vinylWallInstance.year_text.text("Year: " + val);
         vinylWallInstance.current_year = val;
         vinylWallInstance.wrangleData();
     }
