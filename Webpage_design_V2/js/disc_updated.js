@@ -69,6 +69,9 @@ class VinylWall {
         // % of disc to be taken up by centre
         vis.disc_ratio = 0.3;
 
+        // initial sorting order
+        vis.desc = true;
+
         vis.wrangleData();
     }
 
@@ -79,9 +82,17 @@ class VinylWall {
         let dataForYear = vis.raw_data.filter(d => d.Year === vis.current_year);
 
         // sliced data
-        vis.display_data = dataForYear.sort((a, b) => {
-            return b.Popularity - a.Popularity
-        }).slice(0, 5);
+        if (vis.desc === true) {
+            vis.display_data = dataForYear.sort((a, b) => {
+                return b.Popularity - a.Popularity
+            }).slice(0, 5);
+        }
+        else {
+            vis.display_data = dataForYear.filter(d => d.Popularity > 0).sort((a, b) => {
+                return a.Popularity - b.Popularity
+            }).slice(0, 5);
+        }
+
 
         // let's log the display_data
         console.log(this.display_data);
