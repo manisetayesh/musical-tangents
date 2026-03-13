@@ -56,9 +56,13 @@ class VinylWall {
             .attr("class", "circles-group");
 
         // create a scale for genre popularity
-        vis.pop_scale = d3.scaleLinear()
+        const standard_pop_scale = d3.scaleLinear()
             .domain([0, 100])
             .range([0, 150]);
+        const niche_pop_scale = d3.scaleSqrt()
+            .domain([0, 100])
+            .range([20, 100]);
+        vis.pop_scale = standard_pop_scale;
 
         // create a scale for genre text size
         vis.genre_text_scale = d3.scaleLinear().domain([0, 30]).range([8, 15])
@@ -71,6 +75,20 @@ class VinylWall {
 
         // initial sorting order
         vis.desc = true;
+
+        // sorting functionality
+        const explorerBox = document.getElementById("explorer");
+        const artistBox = document.getElementById("artist");
+        explorerBox.addEventListener("click", (e) => {
+            vis.desc = false;
+            vis.pop_scale = niche_pop_scale;
+            vis.wrangleData();
+        })
+        artistBox.addEventListener("click", (e) => {
+            vis.desc = true;
+            vis.pop_scale = standard_pop_scale;
+            vis.wrangleData();
+        })
 
         vis.wrangleData();
     }
@@ -95,7 +113,7 @@ class VinylWall {
 
 
         // let's log the display_data
-        console.log(this.display_data);
+        // console.log(this.display_data);
 
         // update the vis
         vis.updateVis();
@@ -120,7 +138,7 @@ class VinylWall {
 
         // dynamic x positions (since spacing has to depend on disc size and can't be static)
         let x_positions = [];
-        let curr_x = 100;
+        let curr_x = 120;
         let padding = 20;
 
         discsMerge.each(function(d, i) {
@@ -172,18 +190,6 @@ class VinylWall {
                 .duration(300)
                 .style("opacity", 0);
         });
-
-        // sorting functionality
-        const explorerBox = document.getElementById("explorer");
-        const artistBox = document.getElementById("artist");
-        explorerBox.addEventListener("click", (e) => {
-            vis.desc = false;
-            vis.wrangleData();
-        })
-        artistBox.addEventListener("click", (e) => {
-            vis.desc = true;
-            vis.wrangleData();
-        })
     }
 
 
@@ -201,8 +207,8 @@ class VinylWall {
 
             // num rings is always 3 now
             const num_rings = 3;
-            console.log('energy: ' + energy);
-            console.log('num_rings: ' + num_rings);
+            // console.log('energy: ' + energy);
+            // console.log('num_rings: ' + num_rings);
             const ring_arr = d3.range(1, num_rings + 1);
 
             const rings = d3.select(this)
@@ -226,7 +232,7 @@ class VinylWall {
     }
 
     renderPopUp(data, e) {
-        console.log('pop_up')
+        // console.log('pop_up')
         let pop_up_coords = [e.pageX, e.pageY]
         const tooltip = d3.select("#tooltip");
         tooltip.html(`<strong>Genre: ${data.Genre}<br>
