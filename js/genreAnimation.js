@@ -23,7 +23,7 @@
   }
 
   const COLORS = ["#000000", "#000000", "#000000", "#000000", "#000000"];
-  const LABEL_COLORS = ["#c0392b", "#2874a6", "#1e8449", "#b7950b", "#7d3c98"];
+  const LABEL_COLORS = ["#DD614A", "#247BA0", "#ADF5FF", "#FFD6BA", "#a488d1ff"];
   const MAX_GENRES = 5;
   const MIN_GENRES = 2;
   const DEFAULT_GENRES = ["Pop", "Rock", "R&B", "Rap", "Country"];
