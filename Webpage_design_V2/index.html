@@ -63,8 +63,8 @@
     <section class="section" id="section-1" data-section-index="1" aria-label="Rising Insight">
       <div class="slide-inner">
         <p class="section-label">Rising Insight</p>
-        <h2 class="section-title">Which features line up with popularity?</h2>
-        <p class="section-desc">Given song attributes, can we guess a hit from its numbers?</p>
+        <h2 id="vis-header-1" class="section-title">Which features line up with popularity?</h2>
+        <p id="vis-header-2" class="section-desc">Given song attributes, can we guess a hit from its numbers?</p>
         <div class="viz-card brutalist-card">
           <h3>Most Popular Genres Over the Years</h3>
           <div class="viz-slot" id="viz-scatter" aria-label="Chart slot">
@@ -131,26 +131,28 @@
     <section class="section" id="section-3" data-section-index="3" aria-label="Conclusion">
       <div class="slide-inner">
         <p class="section-label">Conclusion / Next Steps</p>
-        <h2 class="section-title">Two ways to use what you see.</h2>
-        <p class="section-desc paths-empower">Empower your audience to act.</p>
+        <h2 class="section-title">Two ways to use what you see. Visualizations change based on your choice. </h2>
+        <p class="section-desc paths-empower">Empower your audience to act. <br>
         <div class="paths-stage" aria-label="Two diverging paths">
-          <div id="artist" class="path-panel path-panel-artist" tabindex="0" role="group" aria-label="Path A: The Artist">
+          <div id="artist" class="path-panel path-panel-artist" tabindex="0" role="group" aria-label="Path A: The Artist" onclick="artist()">
             <div class="path-panel-inner">
               <div class="path-panel-accent"></div>
               <div class="path-panel-content">
                 <span class="path-icon" aria-hidden="true"><span class="iconify" data-icon="mdi:music-note" data-width="32" data-height="32"></span></span>
                 <h3>Path A: The Artist</h3>
                 <p>This is the formula to follow to maximize success. Aim for the sweet spot. Maximize reach.</p>
+                <p class="path-action"> <br> Click to explore <strong>popular genres and song characteristics.</strong></p>
               </div>
             </div>
           </div>
-          <div id="explorer" class="path-panel path-panel-explorer" tabindex="0" role="group" aria-label="Path B: The Explorer">
+          <div id="explorer" class="path-panel path-panel-explorer" tabindex="0" role="group" aria-label="Path B: The Explorer" onclick="explorer()">
             <div class="path-panel-inner">
               <div class="path-panel-accent"></div>
               <div class="path-panel-content">
                 <span class="path-icon" aria-hidden="true"><span class="iconify" data-icon="mdi:compass-outline" data-width="32" data-height="32"></span></span>
                 <h3>Path B: The Explorer</h3>
                 <p>You know the formula. Now go off the beaten path. Discover avenues of music that are not conventionally popular.</p>
+                <p class="path-action"> <br> Click to explore <strong>niche (less popular) genres and song characteristics.</strong></p>
               </div>
             </div>
           </div>
@@ -180,5 +182,6 @@
   <script src="js/genreAnimation.js"></script>
   <script src="js/tempo.js"></script>
   <script src="js/words.js"></script>
+   <script src="js/pop_or_niche.js"></script>
 </body>
 </html>
