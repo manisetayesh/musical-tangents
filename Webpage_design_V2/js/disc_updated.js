@@ -56,9 +56,13 @@ class VinylWall {
             .attr("class", "circles-group");
 
         // create a scale for genre popularity
-        vis.pop_scale = d3.scaleLinear()
+        const standard_pop_scale = d3.scaleLinear()
             .domain([0, 100])
             .range([0, 150]);
+        const niche_pop_scale = d3.scaleSqrt()
+            .domain([0, 100])
+            .range([20, 100]);
+        vis.pop_scale = standard_pop_scale;
 
         // create a scale for genre text size
         vis.genre_text_scale = d3.scaleLinear().domain([0, 30]).range([8, 15])
@@ -77,10 +81,12 @@ class VinylWall {
         const artistBox = document.getElementById("artist");
         explorerBox.addEventListener("click", (e) => {
             vis.desc = false;
+            vis.pop_scale = niche_pop_scale;
             vis.wrangleData();
         })
         artistBox.addEventListener("click", (e) => {
             vis.desc = true;
+            vis.pop_scale = standard_pop_scale;
             vis.wrangleData();
         })
 
