@@ -1,11 +1,11 @@
 :root {
   --primary: #DD614A;
-  --secondary: #247BA0;
+  --secondary: #3895be;
   --accent: #ADF5FF;
-  --bg: #2D3047;
+  --bg: #2d3047;
   --surface: #3a3f5c;
-  --text: #FFD6BA;
-  --muted: #247BA0;
+  --text: hsl(24, 100%, 86%);
+  --muted: #4aacd7;
   --border-width: 4px;
   --font-display: 'Anton', sans-serif;
   --font-body: 'Epilogue', sans-serif;
