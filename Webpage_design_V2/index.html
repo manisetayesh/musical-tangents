@@ -31,7 +31,6 @@
       <div class="slide-inner">
         <div class="hero-inner-wrap">
           <div class="hero-text">
-            <p class="hero-label">Trigger / Hook</p>
             <h1 class="hero-title">WHY THIS?</h1>
             <p class="hero-sub">Have you ever been browsing music and wondered &ldquo;why exactly is this song trending?&rdquo;</p>
             <p class="hero-sub">Have you ever been listening to the radio or looking through today&rsquo;s hits and asking &ldquo;what do all of these songs have in common?&rdquo;</p>
@@ -62,10 +61,10 @@
 
     <section class="section" id="section-1" data-section-index="1" aria-label="Rising Insight">
       <div class="slide-inner">
-        <p class="section-label">Rising Insight</p>
-        <h2 id="vis-header-1" class="section-title">Which features line up with popularity?</h2>
+        <p class="section-label">Genres and songs</p>
+        <h2 id="vis-header-1" class="section-title">What lines up with popularity?</h2>
         <div class="viz-card brutalist-card">
-          <h3>Most Popular Genres Over the Years</h3>
+          <h3>The rise and fall of genre popularity over time</h3>
           <div class="viz-slot" id="viz-scatter" aria-label="Chart slot">
             <div class="ga-module">
               <div class="ga-controls">
@@ -86,6 +85,21 @@
             </div>
           </div>
         </div>
+        
+        <div class="viz-card brutalist-card vinyl">
+          <h3>The most popular genres per year</h3>
+          <div class="viz-slot viz-table" id="vinyl-wall" aria-label="Chart or heatmap slot" style="width: 100%; min-width: 1000px; height: 500px; background-color: #222222"></div>
+          <p class="vinyl-desc">Diameter of discs based on genre popularity. Speed of disc rotation corresponds to energy level of genre.</p>
+          <div id="slider_container"></div>
+          <div class="viz-slot viz-table" id="viz-piano"></div>
+        </div>
+        <div class="viz-card brutalist-card vinyl">
+          <h3>Frequent Words in Song Titles per Era</h3>
+
+          <div class="viz-slot viz-table" id="words-disc" style="width: 100%; height: 500px;" aria-label="Chart slot"></div>
+          <p class="vinyl-desc">Word size = relative popularity score · Disc size = sample size · Outer words = more popular</p>
+
+        </div>
         <div class="viz-card brutalist-card">
           <h3>Song Tempo Comparisons</h3>
           <div class="viz-slot viz-tall" id="viz-formula" aria-label="Chart slot">
@@ -98,24 +112,12 @@
             </div>
           </div>
         </div>
-        <div class="viz-card brutalist-card vinyl">
-          <h3>Genre x Year Vinyl</h3>
-          <div class="viz-slot viz-table" id="vinyl-wall" aria-label="Chart or heatmap slot" style="width: 100%; min-width: 1000px; height: 500px; background-color: #222222"></div>
-          <p class="vinyl-desc">Diameter of discs based on genre popularity. Speed of disc rotation corresponds to energy level of genre.</p>
-          <div id="slider_container"></div>
-          <div class="viz-slot viz-table" id="viz-piano"></div>
-        </div>
-        <div class="viz-card brutalist-card">
-          <h3>Frequent Words in Song Titles per Era</h3>
-          <div class="viz-slot viz-table" id="words-disc" style="width: 100%; height: 500px;"></div>
-          <p class="vinyl-desc">Word size = relative popularity score · Disc size = sample size · Outer words = more popular · Drag to spin</p>
-        </div>
       </div>
     </section>
 
     <section class="section" id="section-2" data-section-index="2" aria-label="The AHA">
       <div class="slide-inner">
-        <p class="section-label">The magical formula</p>
+        <p class="section-label">The statistical formula</p>
         <h2 class="section-title">Predicting Popularity</h2>
         <p id="vis-header-1" class="section-desc">Given a song's attributes, can we tell if it will be a hit?</p>
         <div class="viz-card brutalist-card">
@@ -135,9 +137,9 @@
 
     <section class="section" id="section-3" data-section-index="3" aria-label="Conclusion">
       <div class="slide-inner">
-        <p class="section-label">Conclusion / Next Steps</p>
-        <h2 class="section-title">Two ways to use what you see. Visualizations change based on your choice. </h2>
-        <p class="section-desc paths-empower">Empower your audience to act. <br>
+        <p class="section-label">Change your perspective</p>
+        <h2 class="section-title">Two ways to see the same data.  </h2>
+        <p class="section-desc paths-empower">Visualizations may change based on your choice. <br>
         <div class="paths-stage" aria-label="Two diverging paths">
           <div id="artist" class="path-panel path-panel-artist" tabindex="0" role="group" aria-label="Path A: The Artist" onclick="artist()">
             <div class="path-panel-inner">
@@ -162,13 +164,15 @@
             </div>
           </div>
         </div>
-        <footer class="credits">
-          Webpage design — Musical Tangents. Chart and table slots reserved for data visualization.
-        </footer>
+        
       </div>
     </section>
+   
   </main>
-
+  <footer class="credits">
+    Group: Auditory Hallucinations.
+    Created by Shawn Kapcan, Mani Setayesh, Bryant Phung, Maryann Chen, Michael Lin
+  </footer>
   <nav class="page-nav" aria-label="Section navigation">
     <button class="nav-btn" id="nav-prev" aria-label="Previous section">
       <span class="iconify" data-icon="mdi:chevron-left" data-width="24" data-height="24"></span>
@@ -178,7 +182,7 @@
       <span class="iconify" data-icon="mdi:chevron-right" data-width="24" data-height="24"></span>
     </button>
   </nav>
-
+  
   <script src="js/heroBillboard.js"></script>
   <script src="js/deck.js"></script>
   <script src="js/scrollAnimations.js"></script>
