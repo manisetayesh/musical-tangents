@@ -22,7 +22,7 @@
     return;
   }
 
-  const LABEL_COLORS = ["#FF4444", "#00D4FF", "#00FF88", "#FFDD00", "#BB66FF"];
+  const LABEL_COLORS = ["#DD614A", "#247BA0", "#ADF5FF", "#FFD6BA", "#a488d1ff"];
   const COLORS = LABEL_COLORS;
   const MAX_GENRES = 5;
   const MIN_GENRES = 2;

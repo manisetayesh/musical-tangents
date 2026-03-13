@@ -9,7 +9,7 @@ const songs = [
     { track: "Tennessee", artist: "Arrested Development" }
 ]
 
-const colors = ["#31ff8d", "#4fb8ff", "#dbff63"]
+const colors = ["#DD614A", "#247BA0", "#ADF5FF"];
 
 // BPM value
 const tempo_bpm = 80;
