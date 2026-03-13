@@ -7,7 +7,7 @@
   }
 
   var duration = 350;
-  var slides = document.querySelectorAll(".slide");
+  var sections = document.querySelectorAll(".section");
 
   function animateIn(el, delay) {
     if (!el || el.classList.contains("brutalist-animated")) return;
@@ -28,24 +28,25 @@
     threshold: 0.1
   };
 
-  var slideObserver = new IntersectionObserver(function (entries) {
+  var sectionObserver = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (!entry.isIntersecting) return;
-      var slide = entry.target;
-      var idx = parseInt(slide.getAttribute("data-slide-index"), 10);
+      var section = entry.target;
+      var idx = parseInt(section.getAttribute("data-section-index"), 10);
 
       if (idx === 0) {
-        var heroEls = slide.querySelectorAll(".hero-label, .hero-title, .hero-sub, .hero-visual");
+        section.classList.add("active");
+        var heroEls = section.querySelectorAll(".hero-label, .hero-title, .hero-sub, .hero-visual");
         heroEls.forEach(function (el, i) {
           animateIn(el, i * 80);
         });
       } else if (idx === 1 || idx === 2) {
-        var cards = slide.querySelectorAll(".viz-card, .formula-block");
+        var cards = section.querySelectorAll(".viz-card, .formula-block");
         cards.forEach(function (card, i) {
           animateIn(card, i * 100);
         });
       } else if (idx === 3) {
-        var panels = slide.querySelectorAll(".path-panel");
+        var panels = section.querySelectorAll(".path-panel");
         panels.forEach(function (panel, i) {
           animateIn(panel, i * 120);
         });
@@ -53,7 +54,7 @@
     });
   }, observerOptions);
 
-  slides.forEach(function (slide) {
-    slideObserver.observe(slide);
+  sections.forEach(function (section) {
+    sectionObserver.observe(section);
   });
 })();
