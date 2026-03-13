@@ -121,6 +121,7 @@
         <h2 class="section-title">Predicting Popularity</h2>
         <p id="vis-header-1" class="section-desc">Given a song's attributes, can we tell if it will be a hit?</p>
         <div class="viz-card brutalist-card">
+          <h3>Predicted vs. actual popularity of 500 randomly sampled songs</h3>
           <div class="viz-slot" id="viz-regression" aria-label="Chart slot"></div>
         </div>
         <p id="vis-header-1" class="section-desc">How we calculate it:</p>
@@ -131,8 +132,11 @@
             -12.8 x Valence</code>
             <p class="copy">Not a law — but the pattern is there.</p> 
         </div>
-
+        <footer class="vinyl-desc">
+          Predictions and Coefficients calculated using scikit learn's linearRegressor
+        </footer>
       </div>
+      
     </section>
 
     <section class="section" id="section-3" data-section-index="3" aria-label="Conclusion">

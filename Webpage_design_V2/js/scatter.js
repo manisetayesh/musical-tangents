@@ -4,7 +4,7 @@ d3.json('data/predictions.json').then(res => {
     const [yMin, yMax] = [0, 100]
     const predictions = allPredictions
         .sort(() => 0.5 - Math.random())
-        .slice(0, 1000)
+        .slice(0, 1500)
         .filter(d => 
             d.predicted >= xMin && d.predicted <= xMax &&
             d.Popularity >= yMin && d.Popularity <= yMax
