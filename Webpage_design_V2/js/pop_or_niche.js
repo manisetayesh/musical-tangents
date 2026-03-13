@@ -4,10 +4,12 @@ function artist() {
     console.log("artist");
     vis_header_1.textContent = "Which features line up with popularity?"
     vinyl_header.textContent = "The most popular genres per year"
+    vis_header_1.scrollIntoView({ behavior: 'smooth' });
 }
 function explorer() {
     console.log("explorer");
     vis_header_1.textContent = "Which features line up with standing out?"
     vinyl_header.textContent = "The most niche genres per year"
+    vis_header_1.scrollIntoView({ behavior: 'smooth' });
 
 }
