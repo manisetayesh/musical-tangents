@@ -64,7 +64,6 @@
       <div class="slide-inner">
         <p class="section-label">Rising Insight</p>
         <h2 id="vis-header-1" class="section-title">Which features line up with popularity?</h2>
-        <p id="vis-header-2" class="section-desc">Given song attributes, can we guess a hit from its numbers?</p>
         <div class="viz-card brutalist-card">
           <h3>Most Popular Genres Over the Years</h3>
           <div class="viz-slot" id="viz-scatter" aria-label="Chart slot">
@@ -116,19 +115,21 @@
 
     <section class="section" id="section-2" data-section-index="2" aria-label="The AHA">
       <div class="slide-inner">
-        <p class="section-label">The AHA</p>
-        <h2 class="section-title">A sweet spot.</h2>
-        <div class="aha-grid">
-          <div class="formula-block brutalist-card">
-            <p class="copy">Hits often sit in a sweet spot.</p>
-            <code>pop(x) ≈ key + tempo + energy + valence</code>
-            <p class="copy">Not a law — but the pattern is there.</p>
-          </div>
-          <div class="viz-card brutalist-card">
-            <h3>Decade comparison (small multiples)</h3>
-            <div class="viz-slot" id="viz-decade" aria-label="Chart slot"></div>
-          </div>
+        <p class="section-label">The magical formula</p>
+        <h2 class="section-title">Predicting Popularity</h2>
+        <p id="vis-header-1" class="section-desc">Given a song's attributes, can we tell if it will be a hit?</p>
+        <div class="viz-card brutalist-card">
+          <div class="viz-slot" id="viz-regression" aria-label="Chart slot"></div>
         </div>
+        <p id="vis-header-1" class="section-desc">How we calculate it:</p>
+
+        <div class="formula-block brutalist-card">
+            <code> Popularity ≈ 18.2 x Dancability + -6.5 x Energy + 0.98 x Loudness + 
+            -2.7 x Speechiness + -10.4 x Acousticness + -9.2 x Instrumentalness + -11.3 x Liveness+
+            -12.8 x Valence</code>
+            <p class="copy">Not a law — but the pattern is there.</p> 
+        </div>
+
       </div>
     </section>
 
@@ -186,6 +187,9 @@
   <script src="js/genreAnimation.js"></script>
   <script src="js/tempo.js"></script>
   <script src="js/words.js"></script>
+  <script src="js/scatter.js"></script>
+
    <script src="js/pop_or_niche.js"></script>
+   
 </body>
 </html>
