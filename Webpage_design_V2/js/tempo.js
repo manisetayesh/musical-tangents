@@ -334,6 +334,16 @@ function createSearchableDropdown(id, options) {
 
     const list = document.createElement('ul');
     list.className = 'tempo-song-list';
+    let committedLabel = '';
+    let selectedDuringFocus = false;
+
+    function commitSelection(selected) {
+        committedLabel = selected.label;
+        selectedDuringFocus = true;
+        input.value = selected.label;
+        list.classList.remove('open');
+        updateChart(`#${inputId}`, inputId === 'song1' ? 0 : 1);
+    }
 
     function renderList(query) {
         const normalizedQuery = String(query || '').toLowerCase().trim();
@@ -365,14 +375,17 @@ function createSearchableDropdown(id, options) {
         if (!selected) {
             return;
         }
-        input.value = selected.label;
-        list.classList.remove('open');
-        updateChart(`#${inputId}`, inputId === 'song1' ? 0 : 1);
+        commitSelection(selected);
         event.preventDefault();
     });
 
     input.addEventListener('focus', function () {
-        renderList(input.value);
+        selectedDuringFocus = false;
+        if (input.value && input.value.trim()) {
+            committedLabel = input.value;
+        }
+        input.value = '';
+        renderList('');
     });
 
     input.addEventListener('input', function () {
@@ -392,14 +405,17 @@ function createSearchableDropdown(id, options) {
         if (!selected) {
             return;
         }
-        input.value = selected.label;
-        list.classList.remove('open');
-        updateChart(`#${inputId}`, inputId === 'song1' ? 0 : 1);
+        commitSelection(selected);
         event.preventDefault();
     });
 
     input.addEventListener('blur', function () {
-        setTimeout(() => list.classList.remove('open'), 120);
+        setTimeout(() => {
+            list.classList.remove('open');
+            if (!selectedDuringFocus) {
+                input.value = committedLabel;
+            }
+        }, 120);
     });
 
     const labelText = String(labelNode.textContent || inputId)
@@ -434,10 +450,8 @@ function loadData() {
         songOptions = csv.map((d, i) => ({ label: `${d.Track} - ${d.Artist}`, index: i }));
         songLookup = new Map(songOptions.map(opt => [opt.label, opt.index]));
 
-        ['#song1', '#song2'].forEach((id, i) => {
+        ['#song1', '#song2'].forEach((id) => {
             createSearchableDropdown(id, songOptions);
-            let sel = d3.select(id);
-            sel.on('change', function () { updateChart(id, i); });
         });
     });
 }
