@@ -11,7 +11,7 @@ const max_year = 2023; // more recent data is likely still being updated
 // load the data and the slider
 loadData()
 function loadData() {
-    d3.csv("../data/energy_and_pop_data.csv", row => {
+    d3.csv("./data/energy_and_pop_data.csv", row => {
         row.Year = +row.Year;
         row.Popularity = +row["Average Popularity"];
         row.Energy = +row["Average Energy"];

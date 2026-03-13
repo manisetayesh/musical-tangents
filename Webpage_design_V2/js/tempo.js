@@ -433,8 +433,8 @@ function createSearchableDropdown(id, options) {
 
 function loadData() {
     Promise.all([
-        d3.csv("../data/ClassicHit.csv"),
-        d3.json('../data/ecg_clean.json')
+        d3.csv("./data/ClassicHit.csv"),
+        d3.json('./data/ecg_clean.json')
     ]).then(([csv, ecg]) => {
         csv.forEach(function (d) {
             d.Year = +d.Year;

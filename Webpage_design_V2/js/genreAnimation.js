@@ -27,7 +27,7 @@
   const MIN_GENRES = 2;
   const DEFAULT_GENRES = ["Pop", "Rock", "R&B", "Rap", "Country"];
   const MIN_YEAR = 1950;
-  const DATA_PATH = "../data/ClassicHit.csv";
+  const DATA_PATH = "./data/ClassicHit.csv";
 
   const W = 960;
   const H = 580;
