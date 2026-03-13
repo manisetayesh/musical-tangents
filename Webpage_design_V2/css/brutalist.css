@@ -895,6 +895,9 @@ body {
 #viz-scatter .barline {
   stroke: var(--text);
 }
+#viz-scatter .staff-brace {
+  stroke: var(--text);
+}
 #viz-scatter .year-tick-label {
   fill: var(--muted);
   font-size: 10px;

@@ -10,7 +10,6 @@
     "genre-selector",
     "genre-chips",
     "genre-count",
-    "btn-apply",
     "legend",
     "chart-container",
     "chart"
@@ -252,6 +251,7 @@
     const braceBottom = bassLineYs[4];
     const braceMid = (braceTop + braceBottom) / 2;
     gStaff.append("path")
+      .attr("class", "staff-brace")
       .attr("d", "M" + braceX + "," + braceTop +
         " C" + (braceX - 16) + "," + (braceTop + 40) +
         " " + (braceX - 18) + "," + (braceMid - 35) +
@@ -260,7 +260,6 @@
         " " + (braceX - 16) + "," + (braceBottom - 40) +
         " " + braceX + "," + braceBottom)
       .attr("fill", "none")
-      .attr("stroke", "#000000")
       .attr("stroke-width", 2.5)
       .attr("opacity", 0.45)
       .attr("stroke-linecap", "round");
@@ -773,6 +772,14 @@
       if (playing) {
         stopPlayback();
       } else {
+        if (hasPendingGenreChanges()) {
+          stopPlayback();
+          selectedGenres = [...pendingGenres];
+          currentYearIdx = 0;
+          document.getElementById("genre-selector").classList.remove("open");
+          buildLegend();
+          renderFrame(computePositions(0, selectedGenres));
+        }
         startPlayback();
       }
     });
@@ -798,15 +805,18 @@
       }
       panel.classList.toggle("open");
     });
+  }
 
-    document.getElementById("btn-apply").addEventListener("click", () => {
-      stopPlayback();
-      selectedGenres = [...pendingGenres];
-      currentYearIdx = 0;
-      document.getElementById("genre-selector").classList.remove("open");
-      buildLegend();
-      renderFrame(computePositions(0, selectedGenres));
-    });
+  function hasPendingGenreChanges() {
+    if (pendingGenres.length !== selectedGenres.length) {
+      return true;
+    }
+    for (let i = 0; i < pendingGenres.length; i += 1) {
+      if (pendingGenres[i] !== selectedGenres[i]) {
+        return true;
+      }
+    }
+    return false;
   }
 
   loadCsv(DATA_PATH)
