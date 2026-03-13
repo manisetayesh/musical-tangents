@@ -7,18 +7,26 @@ const pianoPattern = [0, 1, 1, 0, 1, 1, 1];
 const yearPositions = new Map();
 
 let pianoMainGroup, pianoKeys, yearsList;
+let pianoData = []
+let pianoDesc = false;
+function renderPiano() {
+    d3.select("#viz-piano").selectAll("*").remove()
 
-d3.csv("../data/energy_and_pop_data.csv", row => {
-    row.Year = +row.Year;
-    row["Average Popularity"] = +row["Average Popularity"];
-    return row;
-}).then(data => {
-
-    // some genre and year data properties
-    const genres = Object.values(data.reduce((acc, current) => {
-        if (!acc[current.Year] || current["Average Popularity"] > acc[current.Year]["Average Popularity"]) {
-            acc[current.Year] = current;
-        } return acc;
+    // 2. Data Processing
+    let genres = Object.values(pianoData.reduce((acc, current) => {
+        let year = current.Year;
+        let currentPop = current["Average Popularity"];
+        if (currentPop > 0) {
+            let shouldReplace = !acc[year] || (
+                pianoDesc
+                    ? currentPop < acc[year]["Average Popularity"]
+                    : currentPop > acc[year]["Average Popularity"]
+            );
+            if (shouldReplace) {
+                acc[year] = current;
+            }
+        };
+        return acc
     }, {})).sort((a, b) => a.Year - b.Year);
 
     const uniqueGenres = [...new Set(genres.map(d => d.Genre))];
@@ -31,8 +39,8 @@ d3.csv("../data/energy_and_pop_data.csv", row => {
         .domain(uniqueGenres)
         .range(brighterPalette);
 
-    const minYear = d3.min(data, d => d.Year);
-    const maxYear = d3.max(data, d => d.Year);
+    const minYear = d3.min(pianoData, d => d.Year);
+    const maxYear = d3.max(pianoData, d => d.Year);
     yearsList = d3.range(minYear, maxYear + 1);
     
     // d3 container set-up
@@ -40,7 +48,8 @@ d3.csv("../data/energy_and_pop_data.csv", row => {
         .attr("width", "100%")
         .attr("height", 30)
         .append("g")
-        .attr("transform", "translate(10, 10)");
+        .attr("transform", "translate(10, 10)")
+        .attr("id", "piano-legend");
     const pianoContainer = d3.select("#viz-piano")
         .append("div")
         .style("width", "100%")
@@ -120,7 +129,7 @@ d3.csv("../data/energy_and_pop_data.csv", row => {
         updatePianoPosition(+this.value);
     });
     updatePianoPosition(+slider.property("value"));
-});
+};
 
 function updatePianoPosition(year) {
     if (!yearPositions.has(year)) return;
@@ -138,3 +147,28 @@ function updatePianoPosition(year) {
     pianoKeys.select(`.key-${year}`)
         .attr("stroke-width", 7);
 }
+
+const explorerBox = document.getElementById("explorer");
+const artistBox = document.getElementById("artist");
+console.log(artistBox)
+
+explorerBox.addEventListener("click", (e) => {
+    pianoDesc = true;
+    console.log("clicked")
+    renderPiano();
+})
+artistBox.addEventListener("click", (e) => {
+    pianoDesc = false;
+    console.log("clicked")
+
+    renderPiano();
+})
+
+d3.csv("data/energy_and_pop_data.csv", row => {
+    row.Year = +row.Year;
+    row["Average Popularity"] = +row["Average Popularity"];
+    return row;
+}).then(data => {
+    pianoData = data;
+    renderPiano();
+});

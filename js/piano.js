@@ -5,29 +5,33 @@ const axisHeight = 30;
 const pianoPattern = [0, 1, 1, 0, 1, 1, 1];
 const yearPositions = new Map();
 
+let pianoData = [];
 // Placeholder variables for elements defined inside the D3 chain
 let pianoMainGroup, pianoKeys, yearsList;
 
-d3.csv("data/energy_and_pop_data.csv", row => {
-    row.Year = +row.Year;
-    row["Average Popularity"] = +row["Average Popularity"];
-    return row;
-}).then(data => {
-
+function renderPiano() {
     // 2. Data Processing
-    const genres = Object.values(data.reduce((acc, current) => {
-        if (!acc[current.Year] || current["Average Popularity"] > acc[current.Year]["Average Popularity"]) {
-            acc[current.Year] = current;
-        } return acc;
+    let genres = Object.values(pianoData.reduce((acc, current) => {
+        let year = current.Year;
+        let currentPop = current["Average Popularity"];
+        let shouldReplace = !acc[year] || (
+            pianoDesc 
+                ? currentPop < acc[year]["Average Popularity"]
+                : currentPop > acc[year]["Average Popularity"]
+        );
+        if (shouldReplace) {
+            acc[year] = current;
+        }
+        return acc;
     }, {})).sort((a, b) => a.Year - b.Year);
-
+    console.log(genres)
     const uniqueGenres = [...new Set(genres.map(d => d.Genre))];
     const colorScale = d3.scaleOrdinal()
         .domain(uniqueGenres)
         .range(d3.schemeTableau10);
 
-    const minYear = d3.min(data, d => d.Year);
-    const maxYear = d3.max(data, d => d.Year);
+    const minYear = d3.min(pianoData, d => d.Year);
+    const maxYear = d3.max(pianoData, d => d.Year);
     yearsList = d3.range(minYear, maxYear + 1);
     
     // 3. Container Setup
@@ -119,7 +123,9 @@ d3.csv("data/energy_and_pop_data.csv", row => {
 
     // Initial position call
     updatePianoPosition(+slider.property("value"));
-});
+};
+
+
 
 // 7. Update Function (Defined in scope where it can access globals)
 function updatePianoPosition(year) {
@@ -142,3 +148,23 @@ function updatePianoPosition(year) {
     pianoKeys.select(`.key-${year}`)
         .attr("stroke-width", 3);
 }
+explorerBox.addEventListener("click", (e) => {
+    pianoDesc = false;
+    console.log("clicked")
+    renderPiano();
+})
+artistBox.addEventListener("click", (e) => {
+    pianoDesc = true;
+    console.log("clicked")
+
+    renderPiano();
+})
+
+d3.csv("data/energy_and_pop_data.csv", row => {
+    row.Year = +row.Year;
+    row["Average Popularity"] = +row["Average Popularity"];
+    return row;
+}).then(data => {
+    pianoData = data;
+    renderPiano();
+});
