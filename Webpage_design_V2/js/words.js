@@ -25,7 +25,7 @@ function loadData() {
         return row;
     }).then(data => {
         const eraData = wrangleEraData(data);
-        new VinylWall('words-disc', eraData);
+        new VinylWall2('words-disc', eraData);
     });
 }
  
@@ -81,7 +81,7 @@ function wrangleEraData(data) {
 }
  
  
-class VinylWall {
+class VinylWall2 {
     constructor(parentId, eraData) {
         this.parentId  = parentId;
         this.eraData   = eraData;
@@ -210,11 +210,13 @@ class VinylWall {
         discsMerge.select('.disc-count')
             .attr('y', d => radii[vis.eras.indexOf(d)] + 46)
             .attr('text-anchor', 'middle')
+            .attr('fill', 'white')
             .text(d => `${vis.eraData[d].count.toLocaleString()} songs`);
  
         discsMerge.select('.spin-hint')
             .attr('y', d => -radii[vis.eras.indexOf(d)] - 10)
             .attr('text-anchor', 'middle')
+            .attr('fill', 'white')
             .text('drag to spin');
  
         // drag-to-spin
