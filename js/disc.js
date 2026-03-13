@@ -101,7 +101,7 @@ function renderDiscs()
 
         // center ring
         discs.append("circle").attr("class", "center").attr("r", d =>
-        pop_scale(d["Average Popularity"] * centre_size_prop)).attr("fill", "red");
+        pop_scale(d["Average Popularity"] * centre_size_prop)).attr("fill", "#DD614A");
 
         // add genre in the center
         discs.append("text")
