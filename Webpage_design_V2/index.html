@@ -12,6 +12,19 @@
   <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
 </head>
 <body>
+  <div id="tooltip" style="
+        position: absolute;
+        pointer-events: none;
+        opacity: 0;
+        background-color: rgba(0,0,0,0.8);
+        color: white;
+        padding: 8px;
+        border-radius: 4px;
+        font-family: sans-serif;
+        font-size: 14px;
+        z-index: 1000;
+    "></div>
+
   <main class="single-page" id="main">
     <section class="section section-hero active" id="section-0" data-section-index="0" aria-label="Hero">
       <div class="slide-inner">
@@ -42,6 +55,7 @@
             </div>
           </div>
         </div>
+      </div>
       </div>
     </section>
 
@@ -87,10 +101,9 @@
         </div>
         <div class="viz-card brutalist-card vinyl">
           <h3>Genre x Year Vinyl</h3>
-          <div class="viz-slot viz-table" id="vinyl-wall" aria-label="Chart or heatmap slot" style="width: 100%; min-width: 1000px; height: 500px;"></div>
+          <div class="viz-slot viz-table" id="vinyl-wall" aria-label="Chart or heatmap slot" style="width: 100%; min-width: 1000px; height: 500px; background-color: #222222"></div>
           <p class="vinyl-desc">Diameter of discs based on genre popularity. Speed of disc rotation corresponds to energy level of genre.</p>
           <div id="slider_container"></div>
-          <div id="tooltip"></div>
           <div class="viz-slot viz-table" id="viz-piano"></div>
         </div>
       </div>
@@ -120,7 +133,7 @@
         <h2 class="section-title">Two ways to use what you see.</h2>
         <p class="section-desc paths-empower">Empower your audience to act.</p>
         <div class="paths-stage" aria-label="Two diverging paths">
-          <div class="path-panel path-panel-artist" tabindex="0" role="group" aria-label="Path A: The Artist">
+          <div id="artist" class="path-panel path-panel-artist" tabindex="0" role="group" aria-label="Path A: The Artist">
             <div class="path-panel-inner">
               <div class="path-panel-accent"></div>
               <div class="path-panel-content">
@@ -130,7 +143,7 @@
               </div>
             </div>
           </div>
-          <div class="path-panel path-panel-explorer" tabindex="0" role="group" aria-label="Path B: The Explorer">
+          <div id="explorer" class="path-panel path-panel-explorer" tabindex="0" role="group" aria-label="Path B: The Explorer">
             <div class="path-panel-inner">
               <div class="path-panel-accent"></div>
               <div class="path-panel-content">

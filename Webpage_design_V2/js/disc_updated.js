@@ -172,7 +172,20 @@ class VinylWall {
                 .duration(300)
                 .style("opacity", 0);
         });
+
+        // sorting functionality
+        const explorerBox = document.getElementById("explorer");
+        const artistBox = document.getElementById("artist");
+        explorerBox.addEventListener("click", (e) => {
+            vis.desc = false;
+            vis.wrangleData();
+        })
+        artistBox.addEventListener("click", (e) => {
+            vis.desc = true;
+            vis.wrangleData();
+        })
     }
+
 
 // // generate the rings for each vinyl disc
     generateRings(discs) {
@@ -213,6 +226,7 @@ class VinylWall {
     }
 
     renderPopUp(data, e) {
+        console.log('pop_up')
         let pop_up_coords = [e.pageX, e.pageY]
         const tooltip = d3.select("#tooltip");
         tooltip.html(`<strong>Genre: ${data.Genre}<br>
@@ -287,3 +301,4 @@ function rotateText(selection, energy) {
 
     repeat();
 }
+
