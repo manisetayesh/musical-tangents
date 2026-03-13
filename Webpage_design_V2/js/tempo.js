@@ -206,8 +206,7 @@ function startPulseAnimation(i, group, corePath, bpm, color) {
         .attr('class', 'ecg-pulse-marker')
         .attr('r', 5.6)
         .attr('fill', color)
-        .attr('stroke', '#ffffff')
-        .attr('stroke-width', 1.3)
+        .attr('stroke', 'none')
         .attr('opacity', 0.98);
     const start = performance.now();
 
