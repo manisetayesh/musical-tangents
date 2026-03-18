@@ -1,3 +1,4 @@
+
 const tickInterval = 10;
 const keyWidth = 40;
 const keyHeight = 200;
@@ -5,53 +6,58 @@ const axisHeight = 30;
 const pianoPattern = [0, 1, 1, 0, 1, 1, 1];
 const yearPositions = new Map();
 
-let pianoData = [];
-// Placeholder variables for elements defined inside the D3 chain
 let pianoMainGroup, pianoKeys, yearsList;
-
+let pianoData = []
+let pianoDesc = false;
 function renderPiano() {
+    d3.select("#viz-piano").selectAll("*").remove()
+
     // 2. Data Processing
     let genres = Object.values(pianoData.reduce((acc, current) => {
         let year = current.Year;
         let currentPop = current["Average Popularity"];
-        let shouldReplace = !acc[year] || (
-            pianoDesc 
-                ? currentPop < acc[year]["Average Popularity"]
-                : currentPop > acc[year]["Average Popularity"]
-        );
-        if (shouldReplace) {
-            acc[year] = current;
-        }
-        return acc;
+        if (currentPop > 0) {
+            let shouldReplace = !acc[year] || (
+                pianoDesc
+                    ? currentPop < acc[year]["Average Popularity"]
+                    : currentPop > acc[year]["Average Popularity"]
+            );
+            if (shouldReplace) {
+                acc[year] = current;
+            }
+        };
+        return acc
     }, {})).sort((a, b) => a.Year - b.Year);
-    console.log(genres)
+
     const uniqueGenres = [...new Set(genres.map(d => d.Genre))];
+    const basePalette = d3.schemeTableau10;
+    const brighterPalette = basePalette.map(c => {
+        const col = d3.color(c);
+        return col ? col.brighter(0.4) : c;
+    });
     const colorScale = d3.scaleOrdinal()
         .domain(uniqueGenres)
-        .range(d3.schemeTableau10);
+        .range(brighterPalette);
 
     const minYear = d3.min(pianoData, d => d.Year);
     const maxYear = d3.max(pianoData, d => d.Year);
     yearsList = d3.range(minYear, maxYear + 1);
     
-    // 3. Container Setup
-    const legend = d3.select("body").append("svg")
-        .attr("width", uniqueGenres.length * 100)
+    // d3 container set-up
+    const legend = d3.select("#viz-piano").append("svg")
+        .attr("width", "100%")
         .attr("height", 30)
         .append("g")
-        .attr("transform", "translate(10, 10)");
-
-    const pianoContainer = d3.select("body")
+        .attr("transform", "translate(10, 10)")
+        .attr("id", "piano-legend");
+    const pianoContainer = d3.select("#viz-piano")
         .append("div")
-        .attr("id", "piano-container")
-        .style("width", "100%") // Ensure container has a width for centering logic
-        .style("overflow", "hidden");
-
+        .style("width", "100%")
+        .attr("id", "piano-container");
     const pianoSvg = pianoContainer.append("svg")
         .attr("width", yearsList.length * keyWidth)
         .attr("height", keyHeight + axisHeight);
-
-    // Create the moving group first so everything inside it moves together
+    
     pianoMainGroup = pianoSvg.append("g").attr("id", "piano-moving-group");
     
     const axisGroup = pianoMainGroup.append("g");
@@ -80,16 +86,17 @@ function renderPiano() {
                 .attr("width", keyWidth * 0.7)
                 .attr("height", keyHeight * 0.7)
                 .attr("fill", "black")
-                .attr("pointer-events", "none"); // Don't block clicks to colored keys
+                .attr("pointer-events", "none");
         } 
     });
 
-    // 5. Drawing Axis
+    // Axis
     yearsList.forEach((year) => {
         if (year % tickInterval === 0 && yearPositions.has(year)) {
             axisGroup.append("text")
+                .attr("class", "piano-axis-label")
                 .attr("x",  yearPositions.get(year))
-                .attr("y", 20) 
+                .attr("y", 20)
                 .attr("text-anchor", "middle")
                 .text(year);
             axisGroup.append("line")
@@ -97,42 +104,36 @@ function renderPiano() {
                 .attr("x2", yearPositions.get(year))
                 .attr("y1", 25)
                 .attr("y2", axisHeight)
-                .attr("stroke", "black");
+                .attr("fill", "white")
         }
     });
+    
     // legend
     const legendItem = legend.selectAll(".legend-item")
         .data(uniqueGenres)
         .enter()
         .append("g")
         .attr("class", "legend-item")
-        .attr("transform", (d, i) => `translate(${i * 90}, 0)`);
+        .attr("transform", (d, i) => `translate(${i * 86}, 0)`);
     legendItem.append("rect")
-        .attr("width", 15)
+        .attr("width", 10)
         .attr("height", 15)
         .attr("fill", d => colorScale(d));
     legendItem.append("text")
+        .attr("class", "piano-legend-label")
         .attr("x", 20)
         .attr("y", 12.5)
         .text(d => d);
-    // 6. Slider Logic
     let slider = d3.select("#slider_container input");
     slider.on("input.piano", function() {
         updatePianoPosition(+this.value);
     });
-
-    // Initial position call
     updatePianoPosition(+slider.property("value"));
 };
 
-
-
-// 7. Update Function (Defined in scope where it can access globals)
 function updatePianoPosition(year) {
     if (!yearPositions.has(year)) return;
-
     const targetX = yearPositions.get(year);
-    // Use the container's visual width to calculate the center
     const containerWidth = document.getElementById("piano-container").clientWidth || 800;
     const translateX = (containerWidth / 2) - targetX;
 
@@ -141,20 +142,23 @@ function updatePianoPosition(year) {
         .ease(d3.easeCubicOut)
         .attr("transform", `translate(${translateX}, 0)`);
 
-    // Visual feedback: Highlight the selected year's key
     pianoKeys.selectAll("rect")
         .attr("stroke-width", 1);
-    
     pianoKeys.select(`.key-${year}`)
-        .attr("stroke-width", 3);
+        .attr("stroke-width", 7);
 }
+
+const explorerBox = document.getElementById("explorer");
+const artistBox = document.getElementById("artist");
+console.log(artistBox)
+
 explorerBox.addEventListener("click", (e) => {
-    pianoDesc = false;
+    pianoDesc = true;
     console.log("clicked")
     renderPiano();
 })
 artistBox.addEventListener("click", (e) => {
-    pianoDesc = true;
+    pianoDesc = false;
     console.log("clicked")
 
     renderPiano();

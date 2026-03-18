@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   "use strict";
 
   const REQUIRED_IDS = [
@@ -10,6 +10,7 @@
     "genre-selector",
     "genre-chips",
     "genre-count",
+    "btn-apply",
     "legend",
     "chart-container",
     "chart"
@@ -21,13 +22,13 @@
     return;
   }
 
+  const COLORS = ["#000000", "#000000", "#000000", "#000000", "#000000"];
   const LABEL_COLORS = ["#DD614A", "#247BA0", "#ADF5FF", "#FFD6BA", "#a488d1ff"];
-  const COLORS = LABEL_COLORS;
   const MAX_GENRES = 5;
   const MIN_GENRES = 2;
   const DEFAULT_GENRES = ["Pop", "Rock", "R&B", "Rap", "Country"];
   const MIN_YEAR = 1950;
-  const DATA_PATH = "./data/ClassicHit.csv";
+  const DATA_PATH = "data/ClassicHit.csv";
 
   const W = 960;
   const H = 580;
@@ -78,11 +79,7 @@
   let rafHandle = null;
   let xScale = null;
 
-  const svg = d3.select("#chart")
-    .attr("width", W)
-    .attr("height", H)
-    .attr("viewBox", "0 0 " + W + " " + H)
-    .attr("preserveAspectRatio", "xMidYMid meet");
+  const svg = d3.select("#chart").attr("width", W).attr("height", H);
   const gStaff = svg.append("g").attr("class", "staff-layer");
   const gTrails = svg.append("g").attr("class", "trails-layer");
   const gPlayhead = svg.append("g").attr("class", "playhead-layer");
@@ -219,7 +216,7 @@
       .attr("y2", middleCy)
       .attr("stroke", "#000000")
       .attr("stroke-width", 0.6)
-      .attr("opacity", 0.26)
+      .attr("opacity", 0.15)
       .attr("stroke-dasharray", "5,10");
 
     gStaff.append("line")
@@ -251,7 +248,6 @@
     const braceBottom = bassLineYs[4];
     const braceMid = (braceTop + braceBottom) / 2;
     gStaff.append("path")
-      .attr("class", "staff-brace")
       .attr("d", "M" + braceX + "," + braceTop +
         " C" + (braceX - 16) + "," + (braceTop + 40) +
         " " + (braceX - 18) + "," + (braceMid - 35) +
@@ -260,8 +256,9 @@
         " " + (braceX - 16) + "," + (braceBottom - 40) +
         " " + braceX + "," + braceBottom)
       .attr("fill", "none")
+      .attr("stroke", "#000000")
       .attr("stroke-width", 2.5)
-      .attr("opacity", 0.45)
+      .attr("opacity", 0.25)
       .attr("stroke-linecap", "round");
 
     const trebleCenter = (trebleLineYs[0] + trebleLineYs[4]) / 2;
@@ -295,7 +292,7 @@
         .attr("y2", bassLineYs[4] + 13)
         .attr("stroke", "#000000")
         .attr("stroke-width", 0.7)
-        .attr("opacity", 0.5);
+        .attr("opacity", 0.3);
 
       gStaff.append("text")
         .attr("class", "year-tick-label")
@@ -313,7 +310,7 @@
       .attr("y", y)
       .attr("width", width)
       .attr("height", height)
-      .attr("opacity", 0.95)
+      .attr("opacity", 0.5)
       .attr("preserveAspectRatio", "xMidYMid meet");
   }
 
@@ -324,7 +321,7 @@
       .attr("y", y)
       .attr("width", width)
       .attr("height", height)
-      .attr("opacity", 0.95)
+      .attr("opacity", 0.5)
       .attr("preserveAspectRatio", "xMidYMid meet");
   }
 
@@ -772,14 +769,6 @@
       if (playing) {
         stopPlayback();
       } else {
-        if (hasPendingGenreChanges()) {
-          stopPlayback();
-          selectedGenres = [...pendingGenres];
-          currentYearIdx = 0;
-          document.getElementById("genre-selector").classList.remove("open");
-          buildLegend();
-          renderFrame(computePositions(0, selectedGenres));
-        }
         startPlayback();
       }
     });
@@ -805,18 +794,15 @@
       }
       panel.classList.toggle("open");
     });
-  }
 
-  function hasPendingGenreChanges() {
-    if (pendingGenres.length !== selectedGenres.length) {
-      return true;
-    }
-    for (let i = 0; i < pendingGenres.length; i += 1) {
-      if (pendingGenres[i] !== selectedGenres[i]) {
-        return true;
-      }
-    }
-    return false;
+    document.getElementById("btn-apply").addEventListener("click", () => {
+      stopPlayback();
+      selectedGenres = [...pendingGenres];
+      currentYearIdx = 0;
+      document.getElementById("genre-selector").classList.remove("open");
+      buildLegend();
+      renderFrame(computePositions(0, selectedGenres));
+    });
   }
 
   loadCsv(DATA_PATH)

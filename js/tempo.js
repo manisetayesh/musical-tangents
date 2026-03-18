@@ -1,7 +1,9 @@
-const tempo_width = 1000;
+const tempo_mount = document.getElementById('tempo-chart-host');
+const tempo_width = Math.max(320, Math.min(960, ((tempo_mount && tempo_mount.clientWidth) ? tempo_mount.clientWidth : 760) - 8));
 const tempo_height = 400;
-const tempo_chartWidth = tempo_width;
-const tempo_chartHeight = tempo_height - 60;
+const tempo_margin = { top: 10, right: 22, bottom: 50, left: 50 };
+const tempo_chartWidth = tempo_width - tempo_margin.left - tempo_margin.right;
+const tempo_chartHeight = tempo_height - tempo_margin.top - tempo_margin.bottom;
 
 // TODO: Add song selection
 const songs = [
@@ -19,13 +21,13 @@ let songOptions = [];
 let songLookup = new Map();
 const pulseState = {};
 
-const tempo_svg = d3.select('body')
+const tempo_svg = d3.select(tempo_mount ? '#tempo-chart-host' : '#viz-formula')
     .append('svg')
     .attr('width', tempo_width)
     .attr('height', tempo_height);
 
 const tempo_graph = tempo_svg.append('g')
-    .attr('transform', `translate(50, 10)`);
+    .attr('transform', `translate(${tempo_margin.left}, ${tempo_margin.top})`);
 
 // Create scales
 const tempo_xScale = d3.scaleLinear()
@@ -36,7 +38,7 @@ const tempo_yScale = d3.scaleLinear()
     .domain([0, 200])
     .range([tempo_chartHeight, 0]);
 
-// Grid background (light gray)
+// Grid background (theme muted tone)
 const tempo_xGrid = d3.axisBottom(tempo_xScale)
     .ticks(24)
     .tickSize(-tempo_chartHeight)
@@ -51,13 +53,13 @@ tempo_graph.append('g')
     .attr('class', 'tempo-grid-x')
     .attr('transform', `translate(0,${tempo_chartHeight})`)
     .call(tempo_xGrid)
-    .call(g => g.selectAll('line').attr('stroke', '#e5e5e5'))
+    .call(g => g.selectAll('line').attr('stroke', 'rgba(148, 163, 184, 0.32)'))
     .call(g => g.select('.domain').remove());
 
 tempo_graph.append('g')
     .attr('class', 'tempo-grid-y')
     .call(tempo_yGrid)
-    .call(g => g.selectAll('line').attr('stroke', '#f0f0f0'))
+    .call(g => g.selectAll('line').attr('stroke', 'rgba(148, 163, 184, 0.22)'))
     .call(g => g.select('.domain').remove());
 
 let xAxis = d3.axisBottom().scale(tempo_xScale);
@@ -70,11 +72,10 @@ const tempo_xAxis = tempo_graph.append('g')
 
 // Add x-axis label
 tempo_xAxis.append('text')
+    .attr('class', 'tempo-axis-label')
     .attr('x', tempo_chartWidth / 2)
     .attr('y', 40)
-    .attr('fill', 'black')
     .attr('text-anchor', 'middle')
-    .style('font-size', '14px')
     .text('Time (seconds)');
 
 const tempo_yAxis = tempo_graph.append('g')
@@ -205,8 +206,7 @@ function startPulseAnimation(i, group, corePath, bpm, color) {
         .attr('class', 'ecg-pulse-marker')
         .attr('r', 5.6)
         .attr('fill', color)
-        .attr('stroke', '#ffffff')
-        .attr('stroke-width', 1.3)
+        .attr('stroke', 'none')
         .attr('opacity', 0.98);
     const start = performance.now();
 
@@ -333,6 +333,16 @@ function createSearchableDropdown(id, options) {
 
     const list = document.createElement('ul');
     list.className = 'tempo-song-list';
+    let committedLabel = '';
+    let selectedDuringFocus = false;
+
+    function commitSelection(selected) {
+        committedLabel = selected.label;
+        selectedDuringFocus = true;
+        input.value = selected.label;
+        list.classList.remove('open');
+        updateChart(`#${inputId}`, inputId === 'song1' ? 0 : 1);
+    }
 
     function renderList(query) {
         const normalizedQuery = String(query || '').toLowerCase().trim();
@@ -364,14 +374,17 @@ function createSearchableDropdown(id, options) {
         if (!selected) {
             return;
         }
-        input.value = selected.label;
-        list.classList.remove('open');
-        updateChart(`#${inputId}`, inputId === 'song1' ? 0 : 1);
+        commitSelection(selected);
         event.preventDefault();
     });
 
     input.addEventListener('focus', function () {
-        renderList(input.value);
+        selectedDuringFocus = false;
+        if (input.value && input.value.trim()) {
+            committedLabel = input.value;
+        }
+        input.value = '';
+        renderList('');
     });
 
     input.addEventListener('input', function () {
@@ -391,14 +404,17 @@ function createSearchableDropdown(id, options) {
         if (!selected) {
             return;
         }
-        input.value = selected.label;
-        list.classList.remove('open');
-        updateChart(`#${inputId}`, inputId === 'song1' ? 0 : 1);
+        commitSelection(selected);
         event.preventDefault();
     });
 
     input.addEventListener('blur', function () {
-        setTimeout(() => list.classList.remove('open'), 120);
+        setTimeout(() => {
+            list.classList.remove('open');
+            if (!selectedDuringFocus) {
+                input.value = committedLabel;
+            }
+        }, 120);
     });
 
     const labelText = String(labelNode.textContent || inputId)
@@ -417,8 +433,8 @@ function createSearchableDropdown(id, options) {
 
 function loadData() {
     Promise.all([
-        d3.csv("data/ClassicHit.csv"),
-        d3.json('data/ecg_clean.json')
+        d3.csv("./data/ClassicHit.csv"),
+        d3.json('./data/ecg_clean.json')
     ]).then(([csv, ecg]) => {
         csv.forEach(function (d) {
             d.Year = +d.Year;
@@ -433,10 +449,8 @@ function loadData() {
         songOptions = csv.map((d, i) => ({ label: `${d.Track} - ${d.Artist}`, index: i }));
         songLookup = new Map(songOptions.map(opt => [opt.label, opt.index]));
 
-        ['#song1', '#song2'].forEach((id, i) => {
+        ['#song1', '#song2'].forEach((id) => {
             createSearchableDropdown(id, songOptions);
-            let sel = d3.select(id);
-            sel.on('change', function () { updateChart(id, i); });
         });
     });
 }

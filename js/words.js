@@ -6,29 +6,29 @@ const P = {
     rosyCopper:  '#DD614A',
     peachFuzz:   '#FFD6BA',
 };
-
+ 
 const ERA_COLORS = {
     "60s–70s": { disc: '#162230', groove: '#1b2d3d', label: P.peachFuzz },
     "80s–90s": { disc: '#251d2a', groove: '#302338', label: P.peachFuzz },
     "90s–00s": { disc: '#271a1a', groove: '#352020', label: P.peachFuzz },
     "00s–10s": { disc: '#1a2228', groove: '#1f2e38', label: P.peachFuzz },
 };
-
+ 
 // load the data
 loadData();
-
+ 
 function loadData() {
-    d3.csv("../data/ClassicHit.csv", row => {
+    d3.csv("data/ClassicHit.csv", row => {
         row.Year       = +row.Year;
         row.Popularity = +row.Popularity;
         row.Track      = row.Track;
         return row;
     }).then(data => {
         const eraData = wrangleEraData(data);
-        new VinylWall('vinyl-wall', eraData);
+        new VinylWall2('words-disc', eraData);
     });
 }
-
+ 
 // pre-process: bucket songs into eras, compute word frequency weighted by popularity
 function wrangleEraData(data) {
     const eras = {
@@ -37,7 +37,7 @@ function wrangleEraData(data) {
         "90s–00s": [1990, 2009],
         "00s–10s": [2000, 2019],
     };
-
+ 
     const stopwords = new Set([
         'the','a','an','and','or','of','in','on','at','to','for','is','it','i',
         'my','me','you','your','we','be','do','no','not','if','so','up','as','by',
@@ -49,13 +49,13 @@ function wrangleEraData(data) {
         'hey','yeah','yes','aint','ll','re','ve','d','m','feat','remaster',
         'remastered','version','radio','edit','live','remix'
     ]);
-
+ 
     const result = {};
-
+ 
     Object.entries(eras).forEach(([era, [start, end]]) => {
         const songs = data.filter(d => d.Year >= start && d.Year <= end);
         const wordPop = {};
-
+ 
         songs.forEach(song => {
             const words = song.Track.toLowerCase().match(/[a-zA-Z']+/g) || [];
             words.forEach(w => {
@@ -64,10 +64,10 @@ function wrangleEraData(data) {
                 }
             });
         });
-
+ 
         const sorted  = Object.entries(wordPop).sort((a, b) => b[1] - a[1]).slice(0, 10);
         const maxPop  = sorted[0]?.[1] || 1;
-
+ 
         result[era] = {
             count: songs.length,
             words: sorted.map(([word, pop]) => ({
@@ -76,12 +76,12 @@ function wrangleEraData(data) {
             }))
         };
     });
-
+ 
     return result;
 }
-
-
-class VinylWall {
+ 
+ 
+class VinylWall2 {
     constructor(parentId, eraData) {
         this.parentId  = parentId;
         this.eraData   = eraData;
@@ -92,34 +92,36 @@ class VinylWall {
         });
         this.initVis();
     }
-
+ 
     initVis() {
         let vis = this;
         vis.margin = { top: 30, right: 20, bottom: 70, left: 20 };
-        vis.width  = document.getElementById(vis.parentId).getBoundingClientRect().width  - vis.margin.left - vis.margin.right;
-        vis.height = document.getElementById(vis.parentId).getBoundingClientRect().height - vis.margin.top  - vis.margin.bottom;
-
+        const container = document.getElementById(vis.parentId);
+        container.style.height = container.style.height || '520px';
+        vis.width  = container.getBoundingClientRect().width  - vis.margin.left - vis.margin.right;
+        vis.height = container.getBoundingClientRect().height - vis.margin.top  - vis.margin.bottom;
+ 
         vis.svg = d3.select('#' + vis.parentId).append('svg')
             .attr('width',  vis.width  + vis.margin.left + vis.margin.right)
             .attr('height', vis.height + vis.margin.top  + vis.margin.bottom);
-
+ 
         vis.group = vis.svg.append('g')
             .attr('transform', `translate(${vis.margin.left},${vis.margin.top})`);
-
+ 
         vis.circlesGroup = vis.group.append('g').attr('class', 'circles-group');
-
+ 
         const counts = vis.eras.map(e => vis.eraData[e].count);
         vis.discRadiusScale = d3.scaleSqrt()
             .domain([0, d3.max(counts)])
             .range([0, Math.min(vis.height, vis.width / vis.eras.length) * 0.46]);
-
+ 
         vis.updateVis();
     }
-
+ 
     updateVis() {
         let vis = this;
         const radii = vis.eras.map(e => vis.discRadiusScale(vis.eraData[e].count));
-
+ 
         // dynamic x positions
         const padding = 30;
         const xPositions = [];
@@ -131,10 +133,10 @@ class VinylWall {
         const totalWidth = cursor + radii[radii.length - 1] + padding;
         const offsetX = Math.max(0, (vis.width - totalWidth) / 2);
         const cy = vis.height * 0.47;
-
+ 
         // bind data
         let discs = vis.circlesGroup.selectAll('.disc').data(vis.eras, d => d);
-
+ 
         // enter
         let discsEnter = discs.enter().append('g').attr('class', 'disc');
         discsEnter.append('circle').attr('class', 'outer-disc');
@@ -145,20 +147,20 @@ class VinylWall {
         discsEnter.append('text').attr('class', 'disc-label');
         discsEnter.append('text').attr('class', 'disc-count');
         discsEnter.append('text').attr('class', 'spin-hint');
-
+ 
         // merge
         let discsMerge = discsEnter.merge(discs);
-
+ 
         discsMerge.attr('transform', (d, i) =>
             `translate(${offsetX + xPositions[i]}, ${cy})`);
-
+ 
         // outer shell
         discsMerge.select('.outer-disc')
             .attr('r', d => radii[vis.eras.indexOf(d)])
             .attr('fill', d => ERA_COLORS[d].disc)
             .attr('stroke', d => ERA_COLORS[d].groove)
             .attr('stroke-width', 2);
-
+ 
         // grooves
         for (let gi = 0; gi < 7; gi++) {
             discsMerge.select(`.groove-${gi}`)
@@ -171,7 +173,7 @@ class VinylWall {
                 .attr('stroke', d => ERA_COLORS[d].groove)
                 .attr('stroke-width', 0.75);
         }
-
+ 
         // words inside spin group
         discsMerge.each(function(d) {
             const r  = radii[vis.eras.indexOf(d)];
@@ -179,14 +181,14 @@ class VinylWall {
             sg.attr('transform', `rotate(${vis.spinState[d].angle * 180 / Math.PI})`);
             vis.placeWords(sg, vis.eraData[d].words, r);
         });
-
+ 
         // centre hole (rendered above words)
         discsMerge.select('.centre-hole')
             .attr('r', d => radii[vis.eras.indexOf(d)] * 0.075)
             .attr('fill', P.spaceIndigo)
             .attr('stroke', '#445')
             .attr('stroke-width', 1);
-
+ 
         // era label badge
         discsMerge.select('.era-badge')
             .attr('x', d => -radii[vis.eras.indexOf(d)] * 0.44)
@@ -196,7 +198,7 @@ class VinylWall {
             .attr('rx', 3)
             .attr('fill', P.peachFuzz)
             .attr('opacity', 0.1);
-
+ 
         discsMerge.select('.disc-label')
             .attr('y', d => radii[vis.eras.indexOf(d)] + 28)
             .attr('fill', P.peachFuzz)
@@ -204,17 +206,19 @@ class VinylWall {
             .attr('letter-spacing', '0.1em')
             .attr('text-anchor', 'middle')
             .text(d => d);
-
+ 
         discsMerge.select('.disc-count')
             .attr('y', d => radii[vis.eras.indexOf(d)] + 46)
             .attr('text-anchor', 'middle')
+            .attr('fill', 'white')
             .text(d => `${vis.eraData[d].count.toLocaleString()} songs`);
-
+ 
         discsMerge.select('.spin-hint')
             .attr('y', d => -radii[vis.eras.indexOf(d)] - 10)
             .attr('text-anchor', 'middle')
+            .attr('fill', 'white')
             .text('drag to spin');
-
+ 
         // drag-to-spin
         discsMerge.each(function(era) {
             const discEl    = d3.select(this);
@@ -223,7 +227,7 @@ class VinylWall {
             let dragStartAngle = 0;
             let prevAngle      = 0;
             let prevTime       = 0;
-
+ 
             function pointerAngle(event) {
                 const [mx, my] = d3.pointer(event, vis.svg.node());
                 const idx = vis.eras.indexOf(era);
@@ -231,7 +235,7 @@ class VinylWall {
                 const cyc = cy + vis.margin.top;
                 return Math.atan2(my - cyc, mx - cx);
             }
-
+ 
             const drag = d3.drag()
                 .on('start', function(event) {
                     discEl.classed('dragging', true);
@@ -255,10 +259,10 @@ class VinylWall {
                     discEl.classed('dragging', false);
                     vis.startInertia(era, spinGroup);
                 });
-
+ 
             discEl.call(drag);
         });
-
+ 
         // tooltip
         discsMerge
             .on('mouseenter', function(event, d) {
@@ -279,15 +283,15 @@ class VinylWall {
                     .style('top',  (event.clientY - 10) + 'px');
             })
             .on('mouseleave', () => d3.select('#tooltip').style('opacity', 0));
-
+ 
         // exit
         discs.exit().remove();
     }
-
+ 
     startInertia(era, spinGroup) {
         const state    = this.spinState[era];
         const friction = 0.955;
-
+ 
         const tick = () => {
             state.velocity *= friction;
             state.angle    += state.velocity;
@@ -300,12 +304,12 @@ class VinylWall {
         };
         state.raf = requestAnimationFrame(tick);
     }
-
+ 
     placeWords(wg, words, discR) {
         const centreR = discR * 0.085;
         const usableR = discR * 0.93;
         const sorted  = [...words].sort((a, b) => b.score - a.score);
-
+ 
         const positions = sorted.map((w, i) => {
             const frac  = (i + 0.5) / sorted.length;
             const minR  = centreR * 2.8;
@@ -313,9 +317,9 @@ class VinylWall {
             const angle = (i / sorted.length) * 2 * Math.PI + 0.4;
             return { ...w, r, angle };
         });
-
+ 
         const sel = wg.selectAll('.word-text').data(positions, d => d.word);
-
+ 
         sel.enter().append('text').attr('class', 'word-text')
             .merge(sel)
             .attr('x', d => d.r * Math.cos(d.angle))
@@ -330,7 +334,8 @@ class VinylWall {
             .attr('transform', d =>
                 `rotate(${d.angle * 180 / Math.PI + 90}, ${d.r * Math.cos(d.angle)}, ${d.r * Math.sin(d.angle)})`)
             .text(d => d.word);
-
+ 
         sel.exit().remove();
     }
 }
+ 
