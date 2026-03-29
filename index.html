@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/brutalist.css">
+  <link rel="stylesheet" href="css/scatter.css">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
 </head>
@@ -123,18 +124,32 @@
         <div class="viz-card brutalist-card">
           <h3>Predicted vs. actual popularity of 500 randomly sampled songs</h3>
           <div class="viz-slot" id="viz-regression" aria-label="Chart slot"></div>
+          <div id="scatter-tip">
+            <div class="detail">Song Data (Hover over to see)</div>
+            <div class="detail" id="detail-name">Song: --</div>
+            <div class="detail" id="detail-artist">Artist: --</div>
+            <div class="detail" id="detail-year">Year: --</div>
+            <div class="detail" id="detail-pred">Predicted: --</div>
+            <div class="detail" id="detail-actual">Actual: --</div>
+          </div>
         </div>
         <p id="vis-header-1" class="section-desc">How we calculate it:</p>
 
         <div class="formula-block brutalist-card">
-            <code> Popularity ≈ 18.2 x Dancability + -6.5 x Energy + 0.98 x Loudness + 
-            -2.7 x Speechiness + -10.4 x Acousticness + -9.2 x Instrumentalness + -11.3 x Liveness+
-            -12.8 x Valence</code>
-            <p class="copy">Not a law — but the pattern is there.</p> 
+            <div class="equation">
+              <span class="variable" data-desc="A measure of the track's popularity, ranging from 0 to 100.">Popularity</span>
+              ≈ 18.2 × <span class="variable" data-desc="A measure of how suitable the track is for dancing, ranging from 0.0 to 1.0.">Danceability</span>
+              + (-6.5) × <span class="variable" data-desc="A measure of the intensity and activity of the track, ranging from 0.0 to 1.0.">Energy</span>
+              + 0.98 × <span class="variable" data-desc="The overall loudness of a track in decibels (dB).">Loudness</span>
+              + (-2.7) × <span class="variable" data-desc="A measure indicating the presence of spoken words in the track, ranging from 0.0 to 1.0.">Speechiness</span>
+              + (-10.4) × <span class="variable" data-desc="A measure of how acoustic the track is, ranging from 0.0 to 1.0.">Acousticness</span>
+              + (-9.2) × <span class="variable" data-desc="A measure of the likelihood that the track is instrumental, ranging from 0.0 to 1.0.">Instrumentalness</span>
+              + (-11.3) × <span class="variable" data-desc="A measure of the presence of a live audience in the track, ranging from 0.0 to 1.0.">Liveness</span>
+              + (-12.8) × <span class="variable" data-desc="A measure of the musical positiveness of the track, ranging from 0.0 to 1.0.">Valence</span>
+            </div>
+            <p class="copy">Calculated via scikit-learn LinearRegression. Coefficients represent the weight of each standardized
+              feature.</p>
         </div>
-        <footer class="vinyl-desc">
-          Predictions and Coefficients calculated using scikit learn's linearRegressor
-        </footer>
       </div>
       
     </section>

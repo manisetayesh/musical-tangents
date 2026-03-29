@@ -1,0 +1,63 @@
+.variable {
+    cursor: help;
+    color: lightblue;
+    position: relative;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.variable::after {
+    content: attr(data-desc);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-25%);
+    background: #000;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 0;
+    font-size: 0.8rem;
+    white-space: normal;
+    width: 200px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+.variable:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+
+.detail {
+    padding:5px;
+
+}
+#scatter-tip {
+    padding: 15px;
+    text-align: center;
+    color: #98c0f4;
+    font-weight: bold; 
+}
+
+.scatter-axis-title {
+    font-size: 20px;
+    font-weight: bold;
+    fill: hsl(24, 100%, 86%);
+    text-anchor: end
+}
+
+.scatter-axis {
+    fill: hsl(24, 100%, 86%);
+    stroke-width: 0.1;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#lobf {
+    stroke: white;
+    stroke-width: 2;
+    stroke-dasharray: 5,5;
+    opacity: 0.5
+}
