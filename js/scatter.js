@@ -42,8 +42,8 @@ d3.json('data/predictions.json').then(res => {
             d3.select("#detail-name").text(`Song: ${d.Track}`);
             d3.select("#detail-artist").text(`Artist: ${d.Artist}`);
             d3.select("#detail-year").text(`Year: ${d.Year}`);
-            d3.select("#detail-pred").text(`Predicted: ${d.predicted.toFixed(2)}`);
-            d3.select("#detail-actual").text(`Actual: ${d.Popularity}`);
+            d3.select("#detail-pred").text(`Predicted Popularity: ${d.predicted.toFixed(2)}`);
+            d3.select("#detail-actual").text(`Actual Popularity: ${d.Popularity}`);
         })
         .on("mouseleave", function() {
             d3.select(this)
@@ -54,8 +54,8 @@ d3.json('data/predictions.json').then(res => {
             d3.select("#detail-name").text("Song: --");
             d3.select("#detail-artist").text("Artist: --");
             d3.select("#detail-year").text("Year: --");
-            d3.select("#detail-pred").text("Predicted: --");
-            d3.select("#detail-actual").text("Actual: --");
+            d3.select("#detail-pred").text("Predicted Popularity: --");
+            d3.select("#detail-actual").text("Actual Popularity: --");
         });
     
     scattersvg.append("g")
