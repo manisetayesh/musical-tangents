@@ -431,6 +431,24 @@ function createSearchableDropdown(id, options) {
     labelNode.appendChild(wrapper);
 }
 
+function showTempoLoadError(error) {
+    console.error('[tempo] Failed to load data', error);
+
+    const host = document.getElementById('tempo-chart-host');
+    if (!host) {
+        return;
+    }
+
+    const protocolNote = window.location.protocol === 'file:'
+        ? ' Open the page from a local server (for example, VS Code Live Server or `python -m http.server`) so data files in `data/` can be loaded.'
+        : '';
+
+    host.insertAdjacentHTML(
+        'beforeend',
+        `<p style="color:#DD614A;text-align:center;margin-top:0.75rem;">Unable to load tempo data.${protocolNote}</p>`
+    );
+}
+
 function loadData() {
     Promise.all([
         d3.csv("./data/ClassicHit.csv"),
@@ -452,7 +470,7 @@ function loadData() {
         ['#song1', '#song2'].forEach((id) => {
             createSearchableDropdown(id, songOptions);
         });
-    });
+    }).catch(showTempoLoadError);
 }
 
 loadData();
