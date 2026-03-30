@@ -305,37 +305,53 @@ class VinylWall2 {
         state.raf = requestAnimationFrame(tick);
     }
  
-    placeWords(wg, words, discR) {
-        const centreR = discR * 0.085;
-        const usableR = discR * 0.93;
-        const sorted  = [...words].sort((a, b) => b.score - a.score);
- 
-        const positions = sorted.map((w, i) => {
-            const frac  = (i + 0.5) / sorted.length;
-            const minR  = centreR * 2.8;
-            const r     = usableR - (usableR - minR) * frac;
-            const angle = (i / sorted.length) * 2 * Math.PI + 0.4;
-            return { ...w, r, angle };
-        });
- 
-        const sel = wg.selectAll('.word-text').data(positions, d => d.word);
- 
-        sel.enter().append('text').attr('class', 'word-text')
-            .merge(sel)
-            .attr('x', d => d.r * Math.cos(d.angle))
-            .attr('y', d => d.r * Math.sin(d.angle))
-            .attr('font-size', d => {
-                const minFs = Math.max(7,  discR * 0.06);
-                const maxFs = Math.max(12, discR * 0.135);
-                return (minFs + (maxFs - minFs) * (d.score / 100)) + 'px';
-            })
-            .attr('fill', d => d.score > 30 ? P.rosyCopper : P.peachFuzz)
-            .attr('opacity', d => 0.45 + 0.55 * (d.score / 100))
-            .attr('transform', d =>
-                `rotate(${d.angle * 180 / Math.PI + 90}, ${d.r * Math.cos(d.angle)}, ${d.r * Math.sin(d.angle)})`)
-            .text(d => d.word);
- 
-        sel.exit().remove();
-    }
+placeWords(wg, words, discR) {
+    const centreR = discR * 0.085;
+
+    // slightly tighter outer bound to avoid clipping
+    const usableR = discR * 0.9;
+
+    const sorted  = [...words].sort((a, b) => b.score - a.score);
+
+    const positions = sorted.map((w, i) => {
+        const frac  = (i + 0.5) / sorted.length;
+
+        // push words further from centre to avoid overlap
+        const minR  = centreR * 3.2;
+
+        const r     = usableR - (usableR - minR) * frac;
+        const angle = (i / sorted.length) * 2 * Math.PI + 0.4;
+
+        return { ...w, r, angle };
+    });
+
+    const sel = wg.selectAll('.word-text').data(positions, d => d.word);
+
+    sel.enter().append('text')
+        .attr('class', 'word-text')
+        .merge(sel)
+        .attr('x', d => d.r * Math.cos(d.angle))
+        .attr('y', d => d.r * Math.sin(d.angle))
+
+        // ✅ BALANCED FONT SIZE INCREASE
+        .attr('font-size', d => {
+            const minFs = Math.max(9,  discR * 0.075);
+            const maxFs = Math.max(15, discR * 0.16);
+            return (minFs + (maxFs - minFs) * (d.score / 100)) + 'px';
+        })
+
+        // optional: emphasize top words slightly
+        .attr('font-weight', d => d.score > 60 ? '600' : '400')
+
+        .attr('fill', d => d.score > 30 ? P.rosyCopper : P.peachFuzz)
+        .attr('opacity', d => 0.45 + 0.55 * (d.score / 100))
+
+        .attr('transform', d =>
+            `rotate(${d.angle * 180 / Math.PI + 90}, ${d.r * Math.cos(d.angle)}, ${d.r * Math.sin(d.angle)})`
+        )
+
+        .text(d => d.word);
+
+    sel.exit().remove(); 
 }
- 
+}
