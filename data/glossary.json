@@ -1,0 +1,23 @@
+{
+  "genres": {
+    "Alt. Rock": "Guitar-driven rock with indie or college-radio roots; often moody or melodic rather than mainstream arena rock.",
+    "Blues": "African-American tradition built on bent notes, call-and-response, and 12-bar forms; ancestor to rock and R&B.",
+    "Country": "Story songs with fiddle, steel guitar, and Southern/U.S. rural imagery; strong verse-chorus hooks.",
+    "Disco": "Four-on-the-floor drums, orchestral hits, and dance-club grooves; peak in the late 1970s.",
+    "EDM": "Electronic dance music: synthesizers, drops, and DJ-led builds aimed at clubs and festivals.",
+    "Folk": "Acoustic storytelling and traditional song shapes; often fingerpicked guitar and plainspoken lyrics.",
+    "Funk": "Syncopated bass lines, tight drums, and rhythmic guitar; danceable and groove-first.",
+    "Gospel": "Church-rooted harmony, hand-claps, and uplifting or spiritual themes influencing soul and pop.",
+    "Jazz": "Improvisation, extended harmony, and swing or modal rhythms; big band to small-combo styles.",
+    "Metal": "Heavy distorted guitars, loud drums, and high-energy vocals; subgenres span thrash to glam.",
+    "Pop": "Short hooks, polished production, and broad radio appeal; verse-chorus focus and memorable melodies.",
+    "Punk": "Fast tempos, simple chords, and rebellious attitude; raw sound with short, direct songs.",
+    "R&B": "Rhythm and blues: soulful vocals, groove pockets, and influence from gospel and funk.",
+    "Rap": "Rhythmic speech over beats; emphasis on flow, wordplay, and sampled or programmed production.",
+    "Reggae": "Offbeat guitar chops, bass-led grooves, and Caribbean roots; laid-back but syncopated.",
+    "Rock": "Electric guitars, drums, and bass in song forms from classic rock to hard rock.",
+    "SKA": "Upstroke guitar, brass punches, and Jamaican dance rhythms; often upbeat and horn-heavy.",
+    "Today": "Catch-all chart label for current-era tracks that do not map cleanly to older genre bins.",
+    "World": "Non-Western or hybrid traditions: regional instruments, scales, and rhythms in a pop context."
+  }
+}

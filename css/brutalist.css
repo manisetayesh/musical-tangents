@@ -299,8 +299,8 @@ body {
     font-weight: 400;
     color: var(--text);
     margin-bottom: 1.5rem;
-    letter-spacing: 0.02;
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-transform: none;
 }
 .section-desc {
     color: var(--muted);
@@ -324,15 +324,16 @@ body {
 }
 .viz-card h3 {
     font-family: var(--font-body);
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 1.0625rem;
+    font-weight: 600;
     color: var(--text);
     margin-bottom: 0.75rem;
     padding-bottom: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    text-transform: none;
+    letter-spacing: 0.02em;
     text-align: center;
     width: 100%;
+    line-height: 1.35;
 }
 
 .viz-slot {
@@ -501,9 +502,113 @@ body {
     font-weight: 500;
     letter-spacing: 0.02em;
     line-height: 1.5;
+    max-width: 300px;
+    z-index: 1000;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
 }
 #tooltip strong {
     font-weight: 600;
+}
+#tooltip .tooltip-gloss {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+#tooltip .tooltip-gloss-body {
+    flex: 1;
+    min-width: 0;
+}
+#tooltip .tooltip-gloss-icon {
+    flex-shrink: 0;
+    color: var(--accent);
+    opacity: 0.95;
+}
+#tooltip .tooltip-def {
+    margin: 0.45em 0 0;
+    font-weight: 500;
+    line-height: 1.45;
+    border-left: 3px solid var(--accent);
+    padding-left: 8px;
+}
+#tooltip .tooltip-metrics {
+    margin: 0.5em 0 0;
+}
+#tooltip .tooltip-hint {
+    margin: 0.4em 0 0;
+    font-size: 0.68rem;
+    opacity: 0.88;
+    line-height: 1.4;
+}
+#tooltip .tooltip-era-count {
+    font-weight: 600;
+    opacity: 0.9;
+}
+#tooltip .tooltip-word-lines {
+    margin-top: 0.35em;
+}
+#tooltip .tooltip-word-line + .tooltip-word-line {
+    margin-top: 0.35em;
+}
+#tooltip .tooltip-score {
+    font-weight: 600;
+    opacity: 0.95;
+}
+#tooltip .tooltip-sub {
+    margin: 0.2em 0 0;
+    font-size: 0.68rem;
+    opacity: 0.88;
+    line-height: 1.35;
+}
+
+/* chart h3: what this viz is + how to use (separate from #tooltip used by D3) */
+.viz-chart-title {
+    cursor: help;
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    outline: none;
+}
+.viz-chart-title::after {
+    content: attr(data-desc);
+    position: absolute;
+    top: calc(100% + 10px);
+    bottom: auto;
+    left: 0;
+    width: max-content;
+    max-width: min(400px, 94vw);
+    padding: 12px 14px;
+    background: var(--bg);
+    color: var(--text);
+    border: 2px solid var(--primary);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+    white-space: normal;
+    text-align: left;
+    text-transform: none;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.12);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 40;
+    pointer-events: none;
+}
+.viz-chart-title:hover::after,
+.viz-chart-title:focus-visible::after {
+    visibility: visible;
+    opacity: 1;
+}
+.viz-chart-title:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .viz-chart-title::after {
+        transition: none;
+    }
 }
 
 #vinyl-wall svg text {

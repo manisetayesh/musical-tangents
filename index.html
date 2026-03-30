@@ -65,14 +65,14 @@
         <p class="section-label">Genres and songs</p>
         <h2 id="vis-header-1" class="section-title">Which features line up with popularity?</h2>
         <div class="viz-card brutalist-card vinyl">
-          <h3 id="vinyl-header">The most popular genres per year</h3>
+          <h3><span id="vinyl-header" class="viz-chart-title" tabindex="0" data-desc="Shows up to five genres for the selected year; disc size reflects popularity and rotation speed reflects energy. Use the year slider to change the year. Click a disc for details.">The most popular genres per year</span></h3>
           <div class="viz-slot viz-table" id="vinyl-wall" aria-label="Chart or heatmap slot" style="width: 100%; min-width: 1000px; height: 500px; background-color: #373e5c"></div>
           <p class="vinyl-desc">Diameter of discs based on genre popularity. Speed of disc rotation corresponds to energy level of genre.</p>
           <div id="slider_container"></div>
           <div class="viz-slot viz-table" id="viz-piano"></div>
         </div>
         <div class="viz-card brutalist-card">
-          <h3>The rise and fall of genre popularity over time</h3>
+          <h3><span class="viz-chart-title" tabindex="0" data-desc="Each line is a genre you select; vertical position is relative rank within the year (higher on the staff means more popular that year). Use Play to animate through years, Reset to return to the start, and Genres to choose up to five genres. Drag the year slider to move one year at a time.">The rise and fall of genre popularity over time</span></h3>
           <div class="viz-slot" id="viz-scatter" aria-label="Chart slot">
             <div class="ga-module">
               <div class="ga-controls">
@@ -95,14 +95,14 @@
         </div>
 
         <div class="viz-card brutalist-card vinyl">
-          <h3>Frequent Words in Song Titles per Era</h3>
+          <h3><span class="viz-chart-title" tabindex="0" data-desc="Common words from song titles, grouped into four multi-decade buckets from the project dataset. Larger words occur more often in titles for that era; larger discs mean more songs in the sample. Drag a disc to spin it!">Frequent Words in Song Titles per Era</span></h3>
 
           <div class="viz-slot viz-table" id="words-disc" style="width: 100%; height: 500px;" aria-label="Chart slot"></div>
-          <p class="vinyl-desc">Word size = relative popularity score · Disc size = sample size · Outer words = more popular</p>
+          <p class="vinyl-desc">Word size = relative frequency in titles for this era · Disc size = sample size · Outer words = more common</p>
 
         </div>
         <div class="viz-card brutalist-card">
-          <h3>Song Tempo Comparisons</h3>
+          <h3><span class="viz-chart-title" tabindex="0" data-desc="Compares tempo curves for two tracks: how beats line up over the same timeline. Pick Song 1 and Song 2 from the dropdowns; the visualization below updates to show both rhythms together.">Song Tempo Comparisons</span></h3>
           <div class="viz-slot viz-tall" id="viz-formula" aria-label="Chart slot">
             <div class="tempo-module">
               <div id="tempo-controls">
@@ -122,7 +122,7 @@
         <h2 class="section-title">Predicting Popularity</h2>
         <p id="vis-header-1" class="section-desc">Given a song's attributes, can we tell if it will be a hit?</p>
         <div class="viz-card brutalist-card">
-          <h3>Predicted vs. actual popularity of 500 randomly sampled songs</h3>
+          <h3><span class="viz-chart-title" tabindex="0" data-desc="Scatter plot of model-predicted popularity (horizontal axis) versus actual popularity (vertical axis) for 500 randomly sampled songs. Hover a point to highlight it and read song, artist, year, and both popularity values in the panel below.">Predicted vs. actual popularity of 500 randomly sampled songs</span></h3>
           <div class="viz-slot" id="viz-regression" aria-label="Chart slot"></div>
           <div id="scatter-tip">
             <div class="detail">Song Data (Hover over to see)</div>
@@ -178,7 +178,7 @@
                 <span class="path-icon" aria-hidden="true"><span class="iconify" data-icon="mdi:compass-outline" data-width="32" data-height="32"></span></span>
                 <h3>Path B: The Explorer</h3>
                 <p>You know the formula. Now go off the beaten path. Discover avenues of music that are not conventionally popular.</p>
-                <p class="path-action"> <br> Click to explore <strong>niche (less popular) genres and song characteristics.</strong></p>
+                <p class="path-action"> <br> Click to explore <strong><span class="variable" data-desc="Here niche means genres with lower average chart popularity in our dataset for the selected year, not unknown artists in general.">niche</span> (less popular) genres and song characteristics.</strong></p>
               </div>
             </div>
           </div>
@@ -205,6 +205,7 @@
   <script src="js/heroBillboard.js"></script>
   <script src="js/deck.js"></script>
   <script src="js/scrollAnimations.js"></script>
+  <script src="js/glossary.js"></script>
   <script src="js/disc_updated.js"></script>
   
   <script src="js/genreAnimation.js"></script>

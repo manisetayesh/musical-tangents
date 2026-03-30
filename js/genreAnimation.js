@@ -1011,6 +1011,28 @@
       chip.className =
         "genre-chip" + (selectedGenres.includes(genre) ? " selected" : "");
       chip.textContent = genre;
+      chip.addEventListener("mouseenter", function (e) {
+        if (typeof window.glossaryGenreDef !== "function") return;
+        const def = window.glossaryGenreDef(genre);
+        if (!def) return;
+        const tip = d3.select("#tooltip");
+        let html =
+          '<div class="tooltip-gloss"><span class="iconify tooltip-gloss-icon" data-icon="mdi:tag-text" data-width="18" data-height="18"></span><div class="tooltip-gloss-body">';
+        html += "<strong>" + window.glossaryEscapeHtml(genre) + "</strong>";
+        html +=
+          '<p class="tooltip-def">' + window.glossaryEscapeHtml(def) + "</p></div></div>";
+        tip
+          .html(html)
+          .style("left", e.pageX + 12 + "px")
+          .style("top", e.pageY + 10 + "px")
+          .style("opacity", 1);
+        if (typeof window.glossaryScanTooltipIcons === "function") {
+          window.glossaryScanTooltipIcons(tip.node());
+        }
+      });
+      chip.addEventListener("mouseleave", function () {
+        d3.select("#tooltip").style("opacity", 0);
+      });
       chip.addEventListener("click", () => {
         const nextGenres = [...selectedGenres];
         const currentIdx = nextGenres.indexOf(genre);
@@ -1072,6 +1094,13 @@
   loadCsv(DATA_PATH)
     .then((raw) => {
       processData(raw);
+      const glossP =
+        typeof loadGlossary === "function"
+          ? loadGlossary().catch(function () {})
+          : Promise.resolve(null);
+      return glossP;
+    })
+    .then(() => {
       drawStaff();
       buildLegend();
       buildGenreChips();

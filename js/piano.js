@@ -124,6 +124,30 @@ function renderPiano() {
         .attr("x", 20)
         .attr("y", 12.5)
         .text(d => d);
+    legendItem
+        .style("cursor", function (d) {
+            if (typeof glossaryGenreDef !== "function") return "default";
+            return glossaryGenreDef(d) ? "help" : "default";
+        })
+        .on("mouseenter", function (event, d) {
+            if (typeof glossaryGenreDef !== "function") return;
+            const def = glossaryGenreDef(d);
+            if (!def) return;
+            const tip = d3.select("#tooltip");
+            let html = '<div class="tooltip-gloss"><span class="iconify tooltip-gloss-icon" data-icon="mdi:piano" data-width="18" data-height="18"></span><div class="tooltip-gloss-body">';
+            html += "<strong>" + glossaryEscapeHtml(d) + "</strong>";
+            html += '<p class="tooltip-def">' + glossaryEscapeHtml(def) + "</p></div></div>";
+            tip.html(html)
+                .style("left", (event.pageX + 12) + "px")
+                .style("top", (event.pageY + 12) + "px")
+                .style("opacity", 1);
+            if (typeof glossaryScanTooltipIcons === "function") {
+                glossaryScanTooltipIcons(tip.node());
+            }
+        })
+        .on("mouseleave", function () {
+            d3.select("#tooltip").style("opacity", 0);
+        });
     let slider = d3.select("#slider_container input");
     slider.on("input.piano", function() {
         updatePianoPosition(+this.value);
@@ -164,11 +188,13 @@ artistBox.addEventListener("click", (e) => {
     renderPiano();
 })
 
-d3.csv("data/energy_and_pop_data.csv", row => {
+const pianoCsvP = d3.csv("data/energy_and_pop_data.csv", row => {
     row.Year = +row.Year;
     row["Average Popularity"] = +row["Average Popularity"];
     return row;
-}).then(data => {
+});
+const pianoGlossP = typeof loadGlossary === "function" ? loadGlossary() : Promise.resolve(null);
+Promise.all([pianoCsvP, pianoGlossP]).then(([data]) => {
     pianoData = data;
     renderPiano();
 });
