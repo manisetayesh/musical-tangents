@@ -263,15 +263,15 @@ class VinylWall2 {
             discEl.call(drag);
         });
  
-        // tooltip
+        // tooltip (era + sample words only; no glossary, no score)
         discsMerge
             .on('mouseenter', function(event, d) {
                 if (d3.select(this).classed('dragging')) return;
                 const era = vis.eraData[d];
                 d3.select('#tooltip')
-                    .html(`<strong>${d}</strong>${era.count.toLocaleString()} songs<br><br>` +
+                    .html(`<strong>${d}</strong> ${era.count.toLocaleString()} songs<br><br>` +
                         era.words.slice(0, 5).map(w =>
-                            `<span class="tooltip-word">${w.word}</span> &nbsp;${w.score}`
+                            `<span class="tooltip-word">${w.word}</span>`
                         ).join('<br>'))
                     .style('left', (event.clientX + 16) + 'px')
                     .style('top',  (event.clientY - 10) + 'px')

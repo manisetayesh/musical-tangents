@@ -12,16 +12,25 @@
     "genre-count",
     "legend",
     "chart-container",
-    "chart"
+    "chart",
   ];
 
   const missingIds = REQUIRED_IDS.filter((id) => !document.getElementById(id));
   if (missingIds.length > 0) {
-    console.warn("[genreAnimation] Missing required elements:", missingIds.join(", "));
+    console.warn(
+      "[genreAnimation] Missing required elements:",
+      missingIds.join(", "),
+    );
     return;
   }
 
-  const LABEL_COLORS = ["#DD614A", "#247BA0", "#ADF5FF", "#FFD6BA", "#a488d1ff"];
+  const LABEL_COLORS = [
+    "#DD614A",
+    "#247BA0",
+    "#ADF5FF",
+    "#FFD6BA",
+    "#a488d1ff",
+  ];
   const COLORS = LABEL_COLORS;
   const MAX_GENRES = 5;
   const MIN_GENRES = 2;
@@ -53,7 +62,7 @@
     trebleLineYs[3],
     middleCy,
     bassLineYs[1],
-    bassLineYs[3]
+    bassLineYs[3],
   ];
 
   const NOTE_DRAWERS = [
@@ -61,7 +70,7 @@
     drawEighthNote,
     drawBeamedEighths,
     drawHalfNote,
-    drawSixteenthNote
+    drawSixteenthNote,
   ];
   const NOTE_NAMES = ["Quarter", "Eighth", "Beamed", "Half", "16th"];
 
@@ -69,7 +78,9 @@
   let years = [];
   let rankings = {};
   let selectedGenres = [];
-  let pendingGenres = [];
+  let popularDefaults = [];
+  let nicheDefaults = [];
+  let currentMode = window.__mtPathMode === "explorer" ? "explorer" : "artist";
   let currentYearIdx = 0;
   let playing = false;
   let speed = 600;
@@ -78,7 +89,8 @@
   let rafHandle = null;
   let xScale = null;
 
-  const svg = d3.select("#chart")
+  const svg = d3
+    .select("#chart")
     .attr("width", W)
     .attr("height", H)
     .attr("viewBox", "0 0 " + W + " " + H)
@@ -88,6 +100,30 @@
   const gPlayhead = svg.append("g").attr("class", "playhead-layer");
   const gNotes = svg.append("g").attr("class", "notes-layer");
   const gLabels = svg.append("g").attr("class", "labels-layer");
+
+  function isExplorerMode() {
+    return currentMode === "explorer";
+  }
+
+  function applyXScaleRange() {
+    if (!xScale || years.length === 0) {
+      return;
+    }
+    const staffLeft = ML - 6;
+    const staffRight = W - MR + 6;
+    const leadOffset = 74;
+    const leftX = staffLeft + leadOffset;
+    const rightX = staffRight - leadOffset;
+    xScale.range(isExplorerMode() ? [rightX, leftX] : [leftX, rightX]);
+  }
+
+  function getDefaultGenresForMode(mode) {
+    const source = mode === "explorer" ? nicheDefaults : popularDefaults;
+    if (source.length > 0) {
+      return source.slice(0, Math.min(MAX_GENRES, source.length));
+    }
+    return allGenres.slice(0, Math.min(MAX_GENRES, allGenres.length));
+  }
 
   function loadCsv(path) {
     return fetch(path)
@@ -102,8 +138,14 @@
         if (!rows || rows.length === 0) {
           throw new Error("CSV loaded but empty: " + path);
         }
-        if (!("Genre" in rows[0]) || !("Year" in rows[0]) || !("Popularity" in rows[0])) {
-          throw new Error("CSV missing required columns (Genre, Year, Popularity): " + path);
+        if (
+          !("Genre" in rows[0]) ||
+          !("Year" in rows[0]) ||
+          !("Popularity" in rows[0])
+        ) {
+          throw new Error(
+            "CSV missing required columns (Genre, Year, Popularity): " + path,
+          );
         }
         console.log("[genreAnimation] Loaded data from:", path);
         return rows;
@@ -112,6 +154,7 @@
 
   function processData(raw) {
     const genreYearTopPopularity = {};
+    const genreTotals = {};
     const genreSet = new Set();
     const yearSet = new Set();
 
@@ -125,13 +168,19 @@
 
       genreSet.add(genre);
       yearSet.add(year);
+      if (!genreTotals[genre]) {
+        genreTotals[genre] = { sum: 0, count: 0 };
+      }
+      genreTotals[genre].sum += popularity;
+      genreTotals[genre].count += 1;
       if (!genreYearTopPopularity[genre]) {
         genreYearTopPopularity[genre] = {};
       }
       const previousTop = genreYearTopPopularity[genre][year];
-      genreYearTopPopularity[genre][year] = (previousTop === undefined)
-        ? popularity
-        : Math.max(previousTop, popularity);
+      genreYearTopPopularity[genre][year] =
+        previousTop === undefined
+          ? popularity
+          : Math.max(previousTop, popularity);
     });
 
     allGenres = Array.from(genreSet).sort((a, b) => a.localeCompare(b));
@@ -144,9 +193,14 @@
     years.forEach((year) => {
       const topPopularity = allGenres.map((genre) => ({
         genre: genre,
-        popularity: (genreYearTopPopularity[genre] && genreYearTopPopularity[genre][year]) || 0
+        popularity:
+          (genreYearTopPopularity[genre] &&
+            genreYearTopPopularity[genre][year]) ||
+          0,
       }));
-      topPopularity.sort((a, b) => b.popularity - a.popularity || a.genre.localeCompare(b.genre));
+      topPopularity.sort(
+        (a, b) => b.popularity - a.popularity || a.genre.localeCompare(b.genre),
+      );
 
       rankings[year] = {};
       topPopularity.forEach((entry, i) => {
@@ -154,21 +208,49 @@
       });
     });
 
-    selectedGenres = DEFAULT_GENRES.filter((genre) => allGenres.includes(genre)).slice(0, MAX_GENRES);
-    for (let i = 0; i < allGenres.length && selectedGenres.length < MAX_GENRES; i += 1) {
-      if (!selectedGenres.includes(allGenres[i])) {
-        selectedGenres.push(allGenres[i]);
+    const byPopularityDesc = [...allGenres].sort((a, b) => {
+      const avgA = genreTotals[a]
+        ? genreTotals[a].sum / genreTotals[a].count
+        : 0;
+      const avgB = genreTotals[b]
+        ? genreTotals[b].sum / genreTotals[b].count
+        : 0;
+      return avgB - avgA || a.localeCompare(b);
+    });
+    const byPopularityAsc = [...byPopularityDesc].reverse();
+
+    popularDefaults = DEFAULT_GENRES.filter((genre) =>
+      allGenres.includes(genre),
+    );
+    byPopularityDesc.forEach((genre) => {
+      if (
+        popularDefaults.length < MAX_GENRES &&
+        !popularDefaults.includes(genre)
+      ) {
+        popularDefaults.push(genre);
       }
+    });
+
+    nicheDefaults = byPopularityAsc.slice(0, MAX_GENRES);
+    if (nicheDefaults.length < MAX_GENRES) {
+      allGenres.forEach((genre) => {
+        if (
+          nicheDefaults.length < MAX_GENRES &&
+          !nicheDefaults.includes(genre)
+        ) {
+          nicheDefaults.push(genre);
+        }
+      });
     }
+
+    selectedGenres = getDefaultGenresForMode(currentMode);
 
     if (selectedGenres.length < Math.min(MIN_GENRES, allGenres.length)) {
       throw new Error("Not enough genres available to initialize the chart");
     }
-    pendingGenres = [...selectedGenres];
 
-    xScale = d3.scaleLinear()
-      .domain([years[0], years[years.length - 1]])
-      .range([ML + 68, W - MR - 5]);
+    xScale = d3.scaleLinear().domain([years[0], years[years.length - 1]]);
+    applyXScaleRange();
 
     const yearSlider = document.getElementById("year-slider");
     yearSlider.min = 0;
@@ -181,6 +263,9 @@
     const sorted = [...genres].sort((a, b) => {
       const rankA = absolute[a] || Number.MAX_SAFE_INTEGER;
       const rankB = absolute[b] || Number.MAX_SAFE_INTEGER;
+      if (isExplorerMode()) {
+        return rankB - rankA || a.localeCompare(b);
+      }
       return rankA - rankB || a.localeCompare(b);
     });
 
@@ -193,9 +278,16 @@
 
   function drawStaff() {
     gStaff.selectAll("*").remove();
+    const mirrored = isExplorerMode();
+    const staffLeft = ML - 6;
+    const staffRight = W - MR + 6;
+    const leadBarX = mirrored ? staffRight : staffLeft;
+    const endBarThinX = mirrored ? staffLeft : staffRight;
+    const endBarThickX = mirrored ? staffLeft - 4 : staffRight + 4;
 
     trebleLineYs.forEach((y) => {
-      gStaff.append("line")
+      gStaff
+        .append("line")
         .attr("class", "staff-line")
         .attr("x1", ML - 6)
         .attr("x2", W - MR + 6)
@@ -204,7 +296,8 @@
     });
 
     bassLineYs.forEach((y) => {
-      gStaff.append("line")
+      gStaff
+        .append("line")
         .attr("class", "staff-line")
         .attr("x1", ML - 6)
         .attr("x2", W - MR + 6)
@@ -212,7 +305,8 @@
         .attr("y2", y);
     });
 
-    gStaff.append("line")
+    gStaff
+      .append("line")
       .attr("x1", ML + 24)
       .attr("x2", W - MR)
       .attr("y1", middleCy)
@@ -222,43 +316,72 @@
       .attr("opacity", 0.26)
       .attr("stroke-dasharray", "5,10");
 
-    gStaff.append("line")
+    gStaff
+      .append("line")
       .attr("class", "barline")
-      .attr("x1", ML - 6)
-      .attr("x2", ML - 6)
+      .attr("x1", leadBarX)
+      .attr("x2", leadBarX)
       .attr("y1", trebleLineYs[0])
       .attr("y2", bassLineYs[4])
       .attr("stroke-width", 2);
 
-    gStaff.append("line")
+    gStaff
+      .append("line")
       .attr("class", "barline")
-      .attr("x1", W - MR + 6)
-      .attr("x2", W - MR + 6)
+      .attr("x1", endBarThinX)
+      .attr("x2", endBarThinX)
       .attr("y1", trebleLineYs[0])
       .attr("y2", bassLineYs[4])
       .attr("stroke-width", 1);
 
-    gStaff.append("line")
+    gStaff
+      .append("line")
       .attr("class", "barline")
-      .attr("x1", W - MR + 10)
-      .attr("x2", W - MR + 10)
+      .attr("x1", endBarThickX)
+      .attr("x2", endBarThickX)
       .attr("y1", trebleLineYs[0])
       .attr("y2", bassLineYs[4])
       .attr("stroke-width", 2.8);
 
-    const braceX = ML - 14;
+    const braceX = mirrored ? W - MR + 14 : ML - 14;
+    const braceToward = mirrored ? 1 : -1;
     const braceTop = trebleLineYs[0];
     const braceBottom = bassLineYs[4];
     const braceMid = (braceTop + braceBottom) / 2;
-    gStaff.append("path")
+    gStaff
+      .append("path")
       .attr("class", "staff-brace")
-      .attr("d", "M" + braceX + "," + braceTop +
-        " C" + (braceX - 16) + "," + (braceTop + 40) +
-        " " + (braceX - 18) + "," + (braceMid - 35) +
-        " " + (braceX - 4) + "," + braceMid +
-        " C" + (braceX - 18) + "," + (braceMid + 35) +
-        " " + (braceX - 16) + "," + (braceBottom - 40) +
-        " " + braceX + "," + braceBottom)
+      .attr(
+        "d",
+        "M" +
+          braceX +
+          "," +
+          braceTop +
+          " C" +
+          (braceX + 16 * braceToward) +
+          "," +
+          (braceTop + 40) +
+          " " +
+          (braceX + 18 * braceToward) +
+          "," +
+          (braceMid - 35) +
+          " " +
+          (braceX + 4 * braceToward) +
+          "," +
+          braceMid +
+          " C" +
+          (braceX + 18 * braceToward) +
+          "," +
+          (braceMid + 35) +
+          " " +
+          (braceX + 16 * braceToward) +
+          "," +
+          (braceBottom - 40) +
+          " " +
+          braceX +
+          "," +
+          braceBottom,
+      )
       .attr("fill", "none")
       .attr("stroke-width", 2.5)
       .attr("opacity", 0.45)
@@ -269,10 +392,10 @@
     const trebleClefWidth = 74;
     drawTrebleClef(
       gStaff,
-      ML + 2,
-      trebleCenter - (trebleClefHeight / 2),
+      mirrored ? W - MR - trebleClefWidth - 2 : ML + 2,
+      trebleCenter - trebleClefHeight / 2,
       trebleClefWidth,
-      trebleClefHeight
+      trebleClefHeight,
     );
 
     const bassCenter = (bassLineYs[0] + bassLineYs[4]) / 2;
@@ -280,34 +403,39 @@
     const bassClefWidth = 64;
     drawBassClef(
       gStaff,
-      ML + 10,
-      bassCenter - (bassClefHeight / 2),
+      mirrored ? W - MR - bassClefWidth - 10 : ML + 10,
+      bassCenter - bassClefHeight / 2,
       bassClefWidth,
-      bassClefHeight
+      bassClefHeight,
     );
 
-    years.filter((year) => year % 10 === 0).forEach((year) => {
-      const x = xScale(year);
-      gStaff.append("line")
-        .attr("x1", x)
-        .attr("x2", x)
-        .attr("y1", bassLineYs[4] + 5)
-        .attr("y2", bassLineYs[4] + 13)
-        .attr("stroke", "#000000")
-        .attr("stroke-width", 0.7)
-        .attr("opacity", 0.5);
+    years
+      .filter((year) => year % 10 === 0)
+      .forEach((year) => {
+        const x = xScale(year);
+        gStaff
+          .append("line")
+          .attr("x1", x)
+          .attr("x2", x)
+          .attr("y1", bassLineYs[4] + 5)
+          .attr("y2", bassLineYs[4] + 13)
+          .attr("stroke", "#000000")
+          .attr("stroke-width", 0.7)
+          .attr("opacity", 0.5);
 
-      gStaff.append("text")
-        .attr("class", "year-tick-label")
-        .attr("x", x)
-        .attr("y", bassLineYs[4] + 26)
-        .attr("text-anchor", "middle")
-        .text(year);
-    });
+        gStaff
+          .append("text")
+          .attr("class", "year-tick-label")
+          .attr("x", x)
+          .attr("y", bassLineYs[4] + 26)
+          .attr("text-anchor", "middle")
+          .text(year);
+      });
   }
 
   function drawTrebleClef(parent, x, y, width, height) {
-    parent.append("image")
+    parent
+      .append("image")
       .attr("href", "js/trebleClef.svg")
       .attr("x", x)
       .attr("y", y)
@@ -318,7 +446,8 @@
   }
 
   function drawBassClef(parent, x, y, width, height) {
-    parent.append("image")
+    parent
+      .append("image")
       .attr("href", "js/bassClef.svg")
       .attr("x", x)
       .attr("y", y)
@@ -331,14 +460,16 @@
   function drawQuarterNote(parent, cx, cy, color, scale) {
     const s = scale || 1;
     const group = parent.append("g");
-    group.append("ellipse")
+    group
+      .append("ellipse")
       .attr("cx", cx)
       .attr("cy", cy)
       .attr("rx", 7.2 * s)
       .attr("ry", 5.2 * s)
       .attr("transform", "rotate(-18," + cx + "," + cy + ")")
       .attr("fill", color);
-    group.append("line")
+    group
+      .append("line")
       .attr("x1", cx + 6 * s)
       .attr("y1", cy - 1 * s)
       .attr("x2", cx + 6 * s)
@@ -351,7 +482,8 @@
   function drawHalfNote(parent, cx, cy, color, scale) {
     const s = scale || 1;
     const group = parent.append("g");
-    group.append("ellipse")
+    group
+      .append("ellipse")
       .attr("cx", cx)
       .attr("cy", cy)
       .attr("rx", 7.2 * s)
@@ -360,7 +492,8 @@
       .attr("fill", "none")
       .attr("stroke", color)
       .attr("stroke-width", 2.2 * s);
-    group.append("line")
+    group
+      .append("line")
       .attr("x1", cx + 6 * s)
       .attr("y1", cy - 1 * s)
       .attr("x2", cx + 6 * s)
@@ -373,7 +506,8 @@
   function drawEighthNote(parent, cx, cy, color, scale) {
     const s = scale || 1;
     const group = parent.append("g");
-    group.append("ellipse")
+    group
+      .append("ellipse")
       .attr("cx", cx)
       .attr("cy", cy)
       .attr("rx", 7.2 * s)
@@ -384,7 +518,8 @@
     const stemX = cx + 6 * s;
     const stemTop = cy - 32 * s;
 
-    group.append("line")
+    group
+      .append("line")
       .attr("x1", stemX)
       .attr("y1", cy - 1 * s)
       .attr("x2", stemX)
@@ -393,11 +528,27 @@
       .attr("stroke-width", 2 * s)
       .attr("stroke-linecap", "round");
 
-    group.append("path")
-      .attr("d", "M" + (stemX + 1 * s) + "," + stemTop +
-        " C" + (stemX + 14 * s) + "," + (stemTop + 6 * s) +
-        " " + (stemX + 12 * s) + "," + (stemTop + 16 * s) +
-        " " + (stemX + 4 * s) + "," + (stemTop + 22 * s))
+    group
+      .append("path")
+      .attr(
+        "d",
+        "M" +
+          (stemX + 1 * s) +
+          "," +
+          stemTop +
+          " C" +
+          (stemX + 14 * s) +
+          "," +
+          (stemTop + 6 * s) +
+          " " +
+          (stemX + 12 * s) +
+          "," +
+          (stemTop + 16 * s) +
+          " " +
+          (stemX + 4 * s) +
+          "," +
+          (stemTop + 22 * s),
+      )
       .attr("fill", "none")
       .attr("stroke", color)
       .attr("stroke-width", 2.4 * s)
@@ -407,7 +558,8 @@
   function drawSixteenthNote(parent, cx, cy, color, scale) {
     const s = scale || 1;
     const group = parent.append("g");
-    group.append("ellipse")
+    group
+      .append("ellipse")
       .attr("cx", cx)
       .attr("cy", cy)
       .attr("rx", 7.2 * s)
@@ -418,7 +570,8 @@
     const stemX = cx + 6 * s;
     const stemTop = cy - 32 * s;
 
-    group.append("line")
+    group
+      .append("line")
       .attr("x1", stemX)
       .attr("y1", cy - 1 * s)
       .attr("x2", stemX)
@@ -427,21 +580,53 @@
       .attr("stroke-width", 2 * s)
       .attr("stroke-linecap", "round");
 
-    group.append("path")
-      .attr("d", "M" + (stemX + 1 * s) + "," + stemTop +
-        " C" + (stemX + 14 * s) + "," + (stemTop + 5 * s) +
-        " " + (stemX + 12 * s) + "," + (stemTop + 13 * s) +
-        " " + (stemX + 4 * s) + "," + (stemTop + 18 * s))
+    group
+      .append("path")
+      .attr(
+        "d",
+        "M" +
+          (stemX + 1 * s) +
+          "," +
+          stemTop +
+          " C" +
+          (stemX + 14 * s) +
+          "," +
+          (stemTop + 5 * s) +
+          " " +
+          (stemX + 12 * s) +
+          "," +
+          (stemTop + 13 * s) +
+          " " +
+          (stemX + 4 * s) +
+          "," +
+          (stemTop + 18 * s),
+      )
       .attr("fill", "none")
       .attr("stroke", color)
       .attr("stroke-width", 2.4 * s)
       .attr("stroke-linecap", "round");
 
-    group.append("path")
-      .attr("d", "M" + (stemX + 1 * s) + "," + (stemTop + 9 * s) +
-        " C" + (stemX + 14 * s) + "," + (stemTop + 14 * s) +
-        " " + (stemX + 12 * s) + "," + (stemTop + 22 * s) +
-        " " + (stemX + 4 * s) + "," + (stemTop + 27 * s))
+    group
+      .append("path")
+      .attr(
+        "d",
+        "M" +
+          (stemX + 1 * s) +
+          "," +
+          (stemTop + 9 * s) +
+          " C" +
+          (stemX + 14 * s) +
+          "," +
+          (stemTop + 14 * s) +
+          " " +
+          (stemX + 12 * s) +
+          "," +
+          (stemTop + 22 * s) +
+          " " +
+          (stemX + 4 * s) +
+          "," +
+          (stemTop + 27 * s),
+      )
       .attr("fill", "none")
       .attr("stroke", color)
       .attr("stroke-width", 2.4 * s)
@@ -456,7 +641,8 @@
     const rightX = cx + gap / 2;
     const stemHeight = 30 * s;
 
-    group.append("ellipse")
+    group
+      .append("ellipse")
       .attr("cx", leftX)
       .attr("cy", cy)
       .attr("rx", 6.2 * s)
@@ -464,7 +650,8 @@
       .attr("transform", "rotate(-18," + leftX + "," + cy + ")")
       .attr("fill", color);
 
-    group.append("ellipse")
+    group
+      .append("ellipse")
       .attr("cx", rightX)
       .attr("cy", cy)
       .attr("rx", 6.2 * s)
@@ -472,7 +659,8 @@
       .attr("transform", "rotate(-18," + rightX + "," + cy + ")")
       .attr("fill", color);
 
-    group.append("line")
+    group
+      .append("line")
       .attr("x1", leftX + 5 * s)
       .attr("y1", cy - 1 * s)
       .attr("x2", leftX + 5 * s)
@@ -481,7 +669,8 @@
       .attr("stroke-width", 2 * s)
       .attr("stroke-linecap", "round");
 
-    group.append("line")
+    group
+      .append("line")
       .attr("x1", rightX + 5 * s)
       .attr("y1", cy - 1 * s)
       .attr("x2", rightX + 5 * s)
@@ -490,7 +679,8 @@
       .attr("stroke-width", 2 * s)
       .attr("stroke-linecap", "round");
 
-    group.append("rect")
+    group
+      .append("rect")
       .attr("x", leftX + 5 * s)
       .attr("y", cy - stemHeight)
       .attr("width", rightX - leftX + 0.5 * s)
@@ -508,7 +698,7 @@
       positions[genre] = {
         cx: xScale(year),
         cy: rankYPositions[relativeRanks[genre]],
-        gi: i
+        gi: i,
       };
     });
     return positions;
@@ -516,7 +706,11 @@
 
   function drawTrails() {
     gTrails.selectAll("*").remove();
-    const line = d3.line().x((d) => d.x).y((d) => d.y).curve(d3.curveMonotoneX);
+    const line = d3
+      .line()
+      .x((d) => d.x)
+      .y((d) => d.y)
+      .curve(d3.curveMonotoneX);
 
     selectedGenres.forEach((genre, i) => {
       const points = [];
@@ -525,11 +719,12 @@
         const relativeRanks = getRelativeRanks(year, selectedGenres);
         points.push({
           x: xScale(year),
-          y: rankYPositions[relativeRanks[genre]]
+          y: rankYPositions[relativeRanks[genre]],
         });
       }
 
-      gTrails.append("path")
+      gTrails
+        .append("path")
         .attr("class", "trail")
         .attr("d", line(points))
         .attr("stroke", LABEL_COLORS[i]);
@@ -538,7 +733,8 @@
 
   function drawPlayhead(x) {
     gPlayhead.selectAll("*").remove();
-    gPlayhead.append("line")
+    gPlayhead
+      .append("line")
       .attr("class", "playhead")
       .attr("x1", x)
       .attr("x2", x)
@@ -549,6 +745,19 @@
   function renderNotes(positions) {
     gNotes.selectAll("*").remove();
     gLabels.selectAll("*").remove();
+    const mirrored = isExplorerMode();
+    const labelX = mirrored ? ML - 18 : W - MR + 18;
+    const labelAnchor = mirrored ? "end" : "start";
+    const rankingByGenre = {};
+    selectedGenres
+      .filter((genre) => positions[genre])
+      .sort((a, b) => {
+        const delta = positions[a].cy - positions[b].cy;
+        return delta || a.localeCompare(b);
+      })
+      .forEach((genre, idx) => {
+        rankingByGenre[genre] = idx + 1;
+      });
 
     selectedGenres.forEach((genre, i) => {
       const pos = positions[genre];
@@ -561,7 +770,8 @@
       const scale = i === 2 ? 0.78 : 0.88;
 
       if (Math.abs(cy - middleCy) < 10) {
-        gNotes.append("line")
+        gNotes
+          .append("line")
           .attr("x1", cx - 13)
           .attr("x2", cx + 13)
           .attr("y1", middleCy)
@@ -573,12 +783,23 @@
 
       NOTE_DRAWERS[i](gNotes, cx, cy, COLORS[i], scale);
 
-      gLabels.append("text")
+      const rank = rankingByGenre[genre] || i + 1;
+      const label = gLabels
+        .append("text")
         .attr("class", "genre-right-label")
-        .attr("x", W - MR + 18)
+        .attr("x", labelX)
         .attr("y", cy + 4.5)
-        .attr("fill", LABEL_COLORS[i])
-        .text(genre);
+        .attr("text-anchor", labelAnchor)
+        .attr("fill", LABEL_COLORS[i]);
+
+      label
+        .append("tspan")
+        .attr("font-size", "9px")
+        .attr("font-weight", "700")
+        .attr("opacity", 0.85)
+        .text("#" + rank + " ");
+
+      label.append("tspan").text(genre);
     });
   }
 
@@ -589,7 +810,9 @@
     drawTrails();
     drawPlayhead(xScale(years[currentYearIdx]));
     renderNotes(positions);
-    document.getElementById("year-display").textContent = String(years[currentYearIdx]);
+    document.getElementById("year-display").textContent = String(
+      years[currentYearIdx],
+    );
     document.getElementById("year-slider").value = currentYearIdx;
   }
 
@@ -603,7 +826,7 @@
         interpolated[genre] = {
           cx: from.cx + (to.cx - from.cx) * t,
           cy: from.cy + (to.cy - from.cy) * t,
-          gi: to.gi
+          gi: to.gi,
         };
       } else {
         interpolated[genre] = to || from;
@@ -739,47 +962,112 @@
     });
   }
 
+  function applyGenreSelection(nextGenres) {
+    const sameSelection =
+      nextGenres.length === selectedGenres.length &&
+      nextGenres.every((genre, i) => genre === selectedGenres[i]);
+
+    if (sameSelection) {
+      return;
+    }
+
+    stopPlayback();
+    const preservedYearIdx = currentYearIdx;
+    selectedGenres = [...nextGenres];
+    currentYearIdx = Math.max(0, Math.min(preservedYearIdx, years.length - 1));
+    buildLegend();
+    buildGenreChips();
+    renderFrame(computePositions(currentYearIdx, selectedGenres));
+  }
+
+  function applyMode(mode) {
+    const normalizedMode = mode === "explorer" ? "explorer" : "artist";
+    const modeChanged = normalizedMode !== currentMode;
+    currentMode = normalizedMode;
+
+    if (!years.length) {
+      return;
+    }
+
+    if (modeChanged) {
+      stopPlayback();
+      selectedGenres = getDefaultGenresForMode(currentMode);
+    }
+
+    currentYearIdx = Math.max(0, Math.min(currentYearIdx, years.length - 1));
+    applyXScaleRange();
+    drawStaff();
+    buildLegend();
+    buildGenreChips();
+    renderFrame(computePositions(currentYearIdx, selectedGenres));
+  }
+
   function buildGenreChips() {
     const chips = document.getElementById("genre-chips");
     chips.innerHTML = "";
 
     allGenres.forEach((genre) => {
       const chip = document.createElement("button");
-      chip.className = "genre-chip" + (pendingGenres.includes(genre) ? " selected" : "");
+      chip.className =
+        "genre-chip" + (selectedGenres.includes(genre) ? " selected" : "");
       chip.textContent = genre;
-      chip.addEventListener("click", () => {
-        if (pendingGenres.includes(genre)) {
-          if (pendingGenres.length <= MIN_GENRES) {
-            return;
-          }
-          pendingGenres = pendingGenres.filter((entry) => entry !== genre);
-        } else {
-          if (pendingGenres.length >= MAX_GENRES) {
-            return;
-          }
-          pendingGenres.push(genre);
+      chip.addEventListener("mouseenter", function (e) {
+        if (typeof window.glossaryGenreDef !== "function") return;
+        const def = window.glossaryGenreDef(genre);
+        if (!def) return;
+        const tip = d3.select("#tooltip");
+        let html =
+          '<div class="tooltip-gloss"><span class="iconify tooltip-gloss-icon" data-icon="mdi:tag-text" data-width="18" data-height="18"></span><div class="tooltip-gloss-body">';
+        html += "<strong>" + window.glossaryEscapeHtml(genre) + "</strong>";
+        html +=
+          '<p class="tooltip-def">' + window.glossaryEscapeHtml(def) + "</p></div></div>";
+        tip
+          .html(html)
+          .style("left", e.pageX + 12 + "px")
+          .style("top", e.pageY + 10 + "px")
+          .style("opacity", 1);
+        if (typeof window.glossaryScanTooltipIcons === "function") {
+          window.glossaryScanTooltipIcons(tip.node());
         }
-        buildGenreChips();
+      });
+      chip.addEventListener("mouseleave", function () {
+        d3.select("#tooltip").style("opacity", 0);
+      });
+      chip.addEventListener("click", () => {
+        const nextGenres = [...selectedGenres];
+        const currentIdx = nextGenres.indexOf(genre);
+
+        if (currentIdx !== -1) {
+          if (nextGenres.length <= MIN_GENRES) {
+            return;
+          }
+          nextGenres.splice(currentIdx, 1);
+        } else {
+          if (nextGenres.length >= MAX_GENRES) {
+            return;
+          }
+          nextGenres.push(genre);
+        }
+        applyGenreSelection(nextGenres);
       });
       chips.appendChild(chip);
     });
 
-    document.getElementById("genre-count").textContent = String(pendingGenres.length);
+    document.getElementById("genre-count").textContent = String(
+      selectedGenres.length,
+    );
   }
 
   function wireControls() {
+    document.getElementById("genre-selector").classList.add("open");
+    const genreButton = document.getElementById("btn-genres");
+    genreButton.style.display = "none";
+    genreButton.setAttribute("aria-hidden", "true");
+
     document.getElementById("btn-play").addEventListener("click", () => {
       if (playing) {
         stopPlayback();
       } else {
-        if (hasPendingGenreChanges()) {
-          stopPlayback();
-          selectedGenres = [...pendingGenres];
-          currentYearIdx = 0;
-          document.getElementById("genre-selector").classList.remove("open");
-          buildLegend();
-          renderFrame(computePositions(0, selectedGenres));
-        }
         startPlayback();
       }
     });
@@ -790,47 +1078,44 @@
       renderFrame(computePositions(0, selectedGenres));
     });
 
-    document.getElementById("year-slider").addEventListener("input", (event) => {
-      stopPlayback();
-      currentYearIdx = +event.target.value;
-      renderFrame(computePositions(currentYearIdx, selectedGenres));
-    });
+    document
+      .getElementById("year-slider")
+      .addEventListener("input", (event) => {
+        stopPlayback();
+        currentYearIdx = +event.target.value;
+        renderFrame(computePositions(currentYearIdx, selectedGenres));
+      });
 
-    document.getElementById("btn-genres").addEventListener("click", () => {
-      const panel = document.getElementById("genre-selector");
-      const isOpen = panel.classList.contains("open");
-      if (!isOpen) {
-        pendingGenres = [...selectedGenres];
-        buildGenreChips();
-      }
-      panel.classList.toggle("open");
+    window.addEventListener("mt:path-change", (event) => {
+      applyMode(event && event.detail ? event.detail.mode : "artist");
     });
-  }
-
-  function hasPendingGenreChanges() {
-    if (pendingGenres.length !== selectedGenres.length) {
-      return true;
-    }
-    for (let i = 0; i < pendingGenres.length; i += 1) {
-      if (pendingGenres[i] !== selectedGenres[i]) {
-        return true;
-      }
-    }
-    return false;
   }
 
   loadCsv(DATA_PATH)
     .then((raw) => {
       processData(raw);
+      const glossP =
+        typeof loadGlossary === "function"
+          ? loadGlossary().catch(function () {})
+          : Promise.resolve(null);
+      return glossP;
+    })
+    .then(() => {
       drawStaff();
       buildLegend();
+      buildGenreChips();
       wireControls();
-      renderFrame(computePositions(0, selectedGenres));
+      applyMode(window.__mtPathMode || currentMode);
     })
     .catch((err) => {
       console.error("[genreAnimation] Failed to load CSV data", err);
+      const protocolNote =
+        window.location.protocol === "file:"
+          ? " Open the page from a local server (for example, VS Code Live Server or `python -m http.server`) so files in `data/` can be loaded."
+          : "";
       document.getElementById("chart-container").innerHTML =
-        "<p style='color:red;text-align:center;'>Error loading chart data.</p>";
+        "<p style='color:red;text-align:center;'>Error loading chart data." +
+        protocolNote +
+        "</p>";
     });
 })();
-

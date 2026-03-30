@@ -11,12 +11,14 @@ const max_year = 2023; // more recent data is likely still being updated
 // load the data and the slider
 loadData()
 function loadData() {
-    d3.csv("./data/energy_and_pop_data.csv", row => {
+    const csvP = d3.csv("./data/energy_and_pop_data.csv", row => {
         row.Year = +row.Year;
         row.Popularity = +row["Average Popularity"];
         row.Energy = +row["Average Energy"];
         return row;
-    }).then(data => {
+    });
+    const glossP = typeof loadGlossary === "function" ? loadGlossary() : Promise.resolve(null);
+    Promise.all([csvP, glossP]).then(([data]) => {
         let vinyl_wall = new VinylWall('vinyl-wall', data)
         loadYearSlider('slider_container', vinyl_wall);
     })
@@ -232,13 +234,20 @@ class VinylWall {
     }
 
     renderPopUp(data, e) {
-        // console.log('pop_up')
         let pop_up_coords = [e.pageX, e.pageY]
         const tooltip = d3.select("#tooltip");
-        tooltip.html(`<strong>Genre: ${data.Genre}<br>
-        <strong>Popularity:</strong> ${data.Popularity} / 100<br>
-            <strong> Energy:</strong> ${data.Energy} / 1.0`);
-        // position and show the tooltip
+        const def = typeof glossaryGenreDef === "function" ? glossaryGenreDef(data.Genre) : "";
+        let html = '<div class="tooltip-gloss"><span class="iconify tooltip-gloss-icon" data-icon="mdi:album" data-width="20" data-height="20"></span><div class="tooltip-gloss-body">';
+        html += "<strong>" + glossaryEscapeHtml(data.Genre) + "</strong>";
+        if (def) {
+            html += '<p class="tooltip-def">' + glossaryEscapeHtml(def) + "</p>";
+        }
+        html += "<p class=\"tooltip-metrics\"><strong>Popularity:</strong> " + data.Popularity + " / 100<br><strong>Energy:</strong> " + data.Energy + " / 1.0</p>";
+        html += "</div></div>";
+        tooltip.html(html);
+        if (typeof glossaryScanTooltipIcons === "function") {
+            glossaryScanTooltipIcons(tooltip.node());
+        }
         tooltip.style("left", (pop_up_coords[0] + 10) + "px")
             .style("top", (pop_up_coords[1] + 10) + "px")
             .transition()
