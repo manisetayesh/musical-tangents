@@ -78,6 +78,9 @@
   let years = [];
   let rankings = {};
   let selectedGenres = [];
+  let popularDefaults = [];
+  let nicheDefaults = [];
+  let currentMode = window.__mtPathMode === "explorer" ? "explorer" : "artist";
   let currentYearIdx = 0;
   let playing = false;
   let speed = 600;
@@ -97,6 +100,30 @@
   const gPlayhead = svg.append("g").attr("class", "playhead-layer");
   const gNotes = svg.append("g").attr("class", "notes-layer");
   const gLabels = svg.append("g").attr("class", "labels-layer");
+
+  function isExplorerMode() {
+    return currentMode === "explorer";
+  }
+
+  function applyXScaleRange() {
+    if (!xScale || years.length === 0) {
+      return;
+    }
+    const staffLeft = ML - 6;
+    const staffRight = W - MR + 6;
+    const leadOffset = 74;
+    const leftX = staffLeft + leadOffset;
+    const rightX = staffRight - leadOffset;
+    xScale.range(isExplorerMode() ? [rightX, leftX] : [leftX, rightX]);
+  }
+
+  function getDefaultGenresForMode(mode) {
+    const source = mode === "explorer" ? nicheDefaults : popularDefaults;
+    if (source.length > 0) {
+      return source.slice(0, Math.min(MAX_GENRES, source.length));
+    }
+    return allGenres.slice(0, Math.min(MAX_GENRES, allGenres.length));
+  }
 
   function loadCsv(path) {
     return fetch(path)
@@ -127,6 +154,7 @@
 
   function processData(raw) {
     const genreYearTopPopularity = {};
+    const genreTotals = {};
     const genreSet = new Set();
     const yearSet = new Set();
 
@@ -140,6 +168,11 @@
 
       genreSet.add(genre);
       yearSet.add(year);
+      if (!genreTotals[genre]) {
+        genreTotals[genre] = { sum: 0, count: 0 };
+      }
+      genreTotals[genre].sum += popularity;
+      genreTotals[genre].count += 1;
       if (!genreYearTopPopularity[genre]) {
         genreYearTopPopularity[genre] = {};
       }
@@ -175,27 +208,49 @@
       });
     });
 
-    selectedGenres = DEFAULT_GENRES.filter((genre) =>
+    const byPopularityDesc = [...allGenres].sort((a, b) => {
+      const avgA = genreTotals[a]
+        ? genreTotals[a].sum / genreTotals[a].count
+        : 0;
+      const avgB = genreTotals[b]
+        ? genreTotals[b].sum / genreTotals[b].count
+        : 0;
+      return avgB - avgA || a.localeCompare(b);
+    });
+    const byPopularityAsc = [...byPopularityDesc].reverse();
+
+    popularDefaults = DEFAULT_GENRES.filter((genre) =>
       allGenres.includes(genre),
-    ).slice(0, MAX_GENRES);
-    for (
-      let i = 0;
-      i < allGenres.length && selectedGenres.length < MAX_GENRES;
-      i += 1
-    ) {
-      if (!selectedGenres.includes(allGenres[i])) {
-        selectedGenres.push(allGenres[i]);
+    );
+    byPopularityDesc.forEach((genre) => {
+      if (
+        popularDefaults.length < MAX_GENRES &&
+        !popularDefaults.includes(genre)
+      ) {
+        popularDefaults.push(genre);
       }
+    });
+
+    nicheDefaults = byPopularityAsc.slice(0, MAX_GENRES);
+    if (nicheDefaults.length < MAX_GENRES) {
+      allGenres.forEach((genre) => {
+        if (
+          nicheDefaults.length < MAX_GENRES &&
+          !nicheDefaults.includes(genre)
+        ) {
+          nicheDefaults.push(genre);
+        }
+      });
     }
+
+    selectedGenres = getDefaultGenresForMode(currentMode);
 
     if (selectedGenres.length < Math.min(MIN_GENRES, allGenres.length)) {
       throw new Error("Not enough genres available to initialize the chart");
     }
 
-    xScale = d3
-      .scaleLinear()
-      .domain([years[0], years[years.length - 1]])
-      .range([ML + 68, W - MR - 5]);
+    xScale = d3.scaleLinear().domain([years[0], years[years.length - 1]]);
+    applyXScaleRange();
 
     const yearSlider = document.getElementById("year-slider");
     yearSlider.min = 0;
@@ -208,6 +263,9 @@
     const sorted = [...genres].sort((a, b) => {
       const rankA = absolute[a] || Number.MAX_SAFE_INTEGER;
       const rankB = absolute[b] || Number.MAX_SAFE_INTEGER;
+      if (isExplorerMode()) {
+        return rankB - rankA || a.localeCompare(b);
+      }
       return rankA - rankB || a.localeCompare(b);
     });
 
@@ -220,6 +278,12 @@
 
   function drawStaff() {
     gStaff.selectAll("*").remove();
+    const mirrored = isExplorerMode();
+    const staffLeft = ML - 6;
+    const staffRight = W - MR + 6;
+    const leadBarX = mirrored ? staffRight : staffLeft;
+    const endBarThinX = mirrored ? staffLeft : staffRight;
+    const endBarThickX = mirrored ? staffLeft - 4 : staffRight + 4;
 
     trebleLineYs.forEach((y) => {
       gStaff
@@ -255,8 +319,8 @@
     gStaff
       .append("line")
       .attr("class", "barline")
-      .attr("x1", ML - 6)
-      .attr("x2", ML - 6)
+      .attr("x1", leadBarX)
+      .attr("x2", leadBarX)
       .attr("y1", trebleLineYs[0])
       .attr("y2", bassLineYs[4])
       .attr("stroke-width", 2);
@@ -264,8 +328,8 @@
     gStaff
       .append("line")
       .attr("class", "barline")
-      .attr("x1", W - MR + 6)
-      .attr("x2", W - MR + 6)
+      .attr("x1", endBarThinX)
+      .attr("x2", endBarThinX)
       .attr("y1", trebleLineYs[0])
       .attr("y2", bassLineYs[4])
       .attr("stroke-width", 1);
@@ -273,13 +337,14 @@
     gStaff
       .append("line")
       .attr("class", "barline")
-      .attr("x1", W - MR + 10)
-      .attr("x2", W - MR + 10)
+      .attr("x1", endBarThickX)
+      .attr("x2", endBarThickX)
       .attr("y1", trebleLineYs[0])
       .attr("y2", bassLineYs[4])
       .attr("stroke-width", 2.8);
 
-    const braceX = ML - 14;
+    const braceX = mirrored ? W - MR + 14 : ML - 14;
+    const braceToward = mirrored ? 1 : -1;
     const braceTop = trebleLineYs[0];
     const braceBottom = bassLineYs[4];
     const braceMid = (braceTop + braceBottom) / 2;
@@ -293,23 +358,23 @@
           "," +
           braceTop +
           " C" +
-          (braceX - 16) +
+          (braceX + 16 * braceToward) +
           "," +
           (braceTop + 40) +
           " " +
-          (braceX - 18) +
+          (braceX + 18 * braceToward) +
           "," +
           (braceMid - 35) +
           " " +
-          (braceX - 4) +
+          (braceX + 4 * braceToward) +
           "," +
           braceMid +
           " C" +
-          (braceX - 18) +
+          (braceX + 18 * braceToward) +
           "," +
           (braceMid + 35) +
           " " +
-          (braceX - 16) +
+          (braceX + 16 * braceToward) +
           "," +
           (braceBottom - 40) +
           " " +
@@ -327,7 +392,7 @@
     const trebleClefWidth = 74;
     drawTrebleClef(
       gStaff,
-      ML + 2,
+      mirrored ? W - MR - trebleClefWidth - 2 : ML + 2,
       trebleCenter - trebleClefHeight / 2,
       trebleClefWidth,
       trebleClefHeight,
@@ -338,7 +403,7 @@
     const bassClefWidth = 64;
     drawBassClef(
       gStaff,
-      ML + 10,
+      mirrored ? W - MR - bassClefWidth - 10 : ML + 10,
       bassCenter - bassClefHeight / 2,
       bassClefWidth,
       bassClefHeight,
@@ -680,7 +745,9 @@
   function renderNotes(positions) {
     gNotes.selectAll("*").remove();
     gLabels.selectAll("*").remove();
-
+    const mirrored = isExplorerMode();
+    const labelX = mirrored ? ML - 18 : W - MR + 18;
+    const labelAnchor = mirrored ? "end" : "start";
     const rankingByGenre = {};
     selectedGenres
       .filter((genre) => positions[genre])
@@ -720,8 +787,9 @@
       const label = gLabels
         .append("text")
         .attr("class", "genre-right-label")
-        .attr("x", W - MR + 18)
+        .attr("x", labelX)
         .attr("y", cy + 4.5)
+        .attr("text-anchor", labelAnchor)
         .attr("fill", LABEL_COLORS[i]);
 
       label
@@ -912,6 +980,28 @@
     renderFrame(computePositions(currentYearIdx, selectedGenres));
   }
 
+  function applyMode(mode) {
+    const normalizedMode = mode === "explorer" ? "explorer" : "artist";
+    const modeChanged = normalizedMode !== currentMode;
+    currentMode = normalizedMode;
+
+    if (!years.length) {
+      return;
+    }
+
+    if (modeChanged) {
+      stopPlayback();
+      selectedGenres = getDefaultGenresForMode(currentMode);
+    }
+
+    currentYearIdx = Math.max(0, Math.min(currentYearIdx, years.length - 1));
+    applyXScaleRange();
+    drawStaff();
+    buildLegend();
+    buildGenreChips();
+    renderFrame(computePositions(currentYearIdx, selectedGenres));
+  }
+
   function buildGenreChips() {
     const chips = document.getElementById("genre-chips");
     chips.innerHTML = "";
@@ -973,6 +1063,10 @@
         currentYearIdx = +event.target.value;
         renderFrame(computePositions(currentYearIdx, selectedGenres));
       });
+
+    window.addEventListener("mt:path-change", (event) => {
+      applyMode(event && event.detail ? event.detail.mode : "artist");
+    });
   }
 
   loadCsv(DATA_PATH)
@@ -982,7 +1076,7 @@
       buildLegend();
       buildGenreChips();
       wireControls();
-      renderFrame(computePositions(0, selectedGenres));
+      applyMode(window.__mtPathMode || currentMode);
     })
     .catch((err) => {
       console.error("[genreAnimation] Failed to load CSV data", err);
