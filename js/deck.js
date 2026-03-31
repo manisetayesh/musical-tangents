@@ -76,6 +76,10 @@
   if (nextBtn) nextBtn.addEventListener("click", next);
 
   document.addEventListener("keydown", function (e) {
+    var t = e.target;
+    if (t && t.closest && t.closest("input, textarea, select, [contenteditable='true']")) {
+      return;
+    }
     if (e.key === "ArrowRight" || e.key === " ") {
       e.preventDefault();
       next();
