@@ -182,14 +182,17 @@ class VinylWall {
         discs.exit().remove();
 
         // check for a pop up
-        discsMerge.on("click", (e, d) => {
+        discsMerge.on("mouseover", (e, d) => {
             vis.renderPopUp(d, e);
+        })
+        discsMerge.on("mousemove", (e, d) => {
+            vis.movePopUp(e);
         })
         // remove pop ups when user clicks away
         discsMerge.on("mouseout", () => {
             d3.select("#tooltip")
                 .transition()
-                .duration(300)
+                .duration(150)
                 .style("opacity", 0);
         });
     }
@@ -233,8 +236,7 @@ class VinylWall {
         })
     }
 
-    renderPopUp(data, e) {
-        let pop_up_coords = [e.pageX, e.pageY]
+    renderPopUp(data) {
         const tooltip = d3.select("#tooltip");
         const def = typeof glossaryGenreDef === "function" ? glossaryGenreDef(data.Genre) : "";
         let html = '<div class="tooltip-gloss"><span class="iconify tooltip-gloss-icon" data-icon="mdi:album" data-width="20" data-height="20"></span><div class="tooltip-gloss-body">';
@@ -248,11 +250,12 @@ class VinylWall {
         if (typeof glossaryScanTooltipIcons === "function") {
             glossaryScanTooltipIcons(tooltip.node());
         }
-        tooltip.style("left", (pop_up_coords[0] + 10) + "px")
+        tooltip.transition().duration(200).style("opacity", 1);
+    }
+    movePopUp(e) {
+        let pop_up_coords = [e.pageX, e.pageY]
+        d3.select("#tooltip").style("left", (pop_up_coords[0] + 10) + "px")
             .style("top", (pop_up_coords[1] + 10) + "px")
-            .transition()
-            .duration(300)
-            .style("opacity", 1);
     }
 }
 
