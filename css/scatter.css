@@ -9,20 +9,27 @@
 .variable::after {
     content: attr(data-desc);
     position: absolute;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-25%);
-    background: #000;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 0;
-    font-size: 0.8rem;
+    top: 100%;
+    left: 0;
+    width: max-content;
+    max-width: min(300px, 90vw);
+    
+    padding: 12px 14px;
+    background: var(--bg);
+    color: var(--text);
+    border: 2px solid var(--primary);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
     white-space: normal;
-    width: 200px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.12);
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
-    z-index: 10;
+    z-index: 40;
+    pointer-events: none;
 }
 
 .variable:hover::after {
@@ -60,4 +67,28 @@
     stroke-width: 2;
     stroke-dasharray: 5,5;
     opacity: 0.5
+}
+
+
+.panel-btn {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+    border: 2px solid var(--text);
+    padding: 0.6rem;
+    cursor: pointer;
+}
+
+.panel-btn:hover {
+    border-color: var(--secondary);
+    background: var(--surface);
+}
+
+.control-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    margin-top: 10px;
 }
