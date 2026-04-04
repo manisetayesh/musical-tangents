@@ -26,7 +26,7 @@ const scattersvg = d3.select("#viz-regression").append("svg")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 const x = d3.scaleLinear()
-    .domain([xMin, xMax])
+    .domain([xMin, xMax+2])
     .range([0, scatterwidth]);
 const y = d3.scaleLinear()
     .domain([yMin-5, yMax])
