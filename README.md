@@ -2,6 +2,8 @@
 
 Link to hosting website: https://manisetayesh.github.io/musical-tangents/
 
+Link to screencast video: https://www.youtube.com/watch?v=gbWLO7s7mLc
+
 ___
 ## Project code breakdown:
 
