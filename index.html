@@ -139,21 +139,63 @@
             <div class="detail" id="detail-actual">Actual Popularity: --</div>
           </div>
         </div>
-        <span id="vis-header-1" class="variable" data-desc="A formula to calculate probability. Play around with the weights for each variable to see their effects - can you find the magical formula?">Your formula:</span>
-
+        <div class="formula-container">
+        <span class="variable" data-desc="A formula to calculate probability. Play around with the weights for each variable to see their effects - can you find the magical formula?">Your formula:</span>
         <div class="viz-card brutalist-card">
-            <div class="equation" >
-              <span class="variable" data-desc="A measure of the track's popularity, ranging from 0 to 100.">Predicted Popularity</span>
-              ≈ (<input type="number" class="weight-input" data-var="Danceability" value="16" step="0.1">) × <span class="variable" data-desc="A measure of how suitable the track is for dancing, ranging from 0.0 to 1.0.">Danceability</span>
-              + (<input type="number" class="weight-input" data-var="Energy" value="20" step="0.1">) × <span class="variable" data-desc="A measure of the intensity and activity of the track, ranging from 0.0 to 1.0.">Energy</span>
-              + (<input type="number" class="weight-input" data-var="Loudness" value="1" step="0.01">) × <span class="variable" data-desc="The loudness of a track (dB).">Loudness</span>
-              + (<input type="number" class="weight-input" data-var="Speechiness" value="20" step="0.1">) × <span class="variable" data-desc="A measure indicating the presence of spoken words in the track, ranging from 0.0 to 1.0.">Speechiness</span>
-              + (<input type="number" class="weight-input" data-var="Acousticness" value="20" step="0.1">) × <span class="variable" data-desc="A measure of how acoustic the track is, ranging from 0.0 to 1.0.">Acousticness</span>
-              + (<input type="number" class="weight-input" data-var="Instrumentalness" value="20" step="0.1">) × <span class="variable" data-desc="A measure of the likelihood that the track is instrumental, ranging from 0.0 to 1.0.">Instrumentalness</span>
-              + (<input type="number" class="weight-input" data-var="Liveness" value="20" step="0.1">) × <span class="variable" data-desc="A measure of the presence of a live audience in the track, ranging from 0.0 to 1.0.">Liveness</span>
-              + (<input type="number" class="weight-input" data-var="Valence" value="1" step="0.1">) × <span class="variable" data-desc="A measure of the musical positiveness of the track, ranging from 0.0 to 1.0.">Valence</span>
-            </div>
+              <div class="result-label">
+                <span class="variable" data-desc="A measure of the track's popularity, ranging from 0 to 100.">Predicted
+                  Popularity</span> ≈
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">&nbsp;&nbsp;</span>
+                (<input type="number" class="weight-input" data-var="Danceability" value="16" step="1">)
+                × <span class="variable" data-desc="A measure of how suitable the track is for dancing.">Danceability</span>
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">+</span>
+                (<input type="number" class="weight-input" data-var="Energy" value="20">)
+                × <span class="variable" data-desc="Intensity and activity of the track.">Energy</span>
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">+</span>
+                (<input type="number" class="weight-input" data-var="Loudness" value="1">)
+                × <span class="variable" data-desc="The loudness of a track (dB).">Loudness</span>
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">+</span>
+                (<input type="number" class="weight-input" data-var="Speechiness" value="20">)
+                × <span class="variable" data-desc="Presence of spoken words.">Speechiness</span>
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">+</span>
+                (<input type="number" class="weight-input" data-var="Acousticness" value="20">)
+                × <span class="variable" data-desc="How acoustic the track is.">Acousticness</span>
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">+</span>
+                (<input type="number" class="weight-input" data-var="Instrumentalness" value="20">)
+                × <span class="variable" data-desc="Likelihood that the track is instrumental.">Instrumentalness</span>
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">+</span>
+                (<input type="number" class="weight-input" data-var="Liveness" value="20">)
+                × <span class="variable" data-desc="Presence of a live audience.">Liveness</span>
+              </div>
+            
+              <div class="equation-row">
+                <span class="operator">+</span>
+                (<input type="number" class="weight-input" data-var="Valence" value="1">)
+                × <span class="variable" data-desc="Musical positiveness of the track.">Valence</span>
+              </div>
         </div>
+      </div>
       </div>
       
     </section>

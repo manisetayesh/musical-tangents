@@ -92,3 +92,56 @@
     margin-bottom: 30px;
     margin-top: 10px;
 }
+
+.formula-container {
+    text-align: center;
+    align-content: center;
+    gap: 5px;
+    font-family: sans-serif;
+    max-width: 400px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.equation-row {
+    display: flex;
+    align-items: center;
+}
+
+.weight-input {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background-color: var(--secondary);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--surface);
+    text-align: center;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.weight-input:hover {
+    background: white;
+}
+
+.weight-input:focus {
+    background: white;
+}
+
+.operator {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.result-label {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 5px;
+}
